@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano Karate — M° Colussi Stefano · ASD CSKS Karate Mestre</title>
+<style>
+:root{
+  --f1:#1A7A3A;--f1l:#D5F5E3;--f1b:#A9DFBF;
+  --f2:#1A5276;--f2l:#AED6F1;--f2b:#85C1E9;
+  --f3:#7B0000;--f3l:#FADBD8;--f3b:#F1948A;
+  --f4:#7D6608;--f4l:#FCF3CF;--f4b:#F9E79F;
+  --f5:#5B2C6F;--f5l:#E8DAEF;--f5b:#C39BD3;
+  --grey:#2C3E50;--greyl:#ECF0F1;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#F5F6FA;color:#1A1A1A;font-size:14px;}
+
+/* TOOLBAR */
+#toolbar{background:#1A1A2E;padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+#toolbar span{color:rgba(255,255,255,.5);font-size:11px;font-weight:600;margin-right:4px;}
+.tbtn{border:none;cursor:pointer;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;transition:all .2s;display:flex;align-items:center;gap:5px;}
+.tbtn-edit{background:#F39C12;color:white;}
+.tbtn-edit.active{background:#E67E22;box-shadow:0 0 0 3px rgba(243,156,18,.4);}
+.tbtn-pdf{background:#E74C3C;color:white;}
+.tbtn-pdf:hover{background:#C0392B;}
+.tbtn-pdf2{background:#8E44AD;color:white;}
+.tbtn-pdf2:hover{background:#7D3C98;}
+.tbtn-pdf3{background:#2980B9;color:white;}
+.tbtn-pdf3:hover{background:#1A5276;}
+.tbtn-save{background:#27AE60;color:white;}
+.edit-hint{color:#F39C12;font-size:11px;font-weight:700;display:none;animation:blink 1.2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* EDIT MODE */
+body.edit-mode [contenteditable]{outline:2px dashed #F39C12!important;background:rgba(243,156,18,.06)!important;border-radius:3px;cursor:text;min-width:30px;display:inline-block;}
+body.edit-mode [contenteditable]:focus{outline:2px solid #F39C12!important;background:rgba(243,156,18,.12)!important;}
+body.edit-mode .editable-row:hover{background:#FFFDE7!important;}
+
+/* HEADER */
+header{background:linear-gradient(135deg,#1A1A2E,#16213E,#0F3460);color:white;padding:18px 24px;}
+.hdr-row{display:flex;align-items:center;gap:16px;}
+.hdr-logo{width:52px;height:52px;background:white;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hdr-logo svg{width:40px;height:40px;}
+.hdr-row h1{font-size:19px;font-weight:800;line-height:1.2;}
+.hdr-row p{font-size:12px;opacity:.85;margin-top:3px;}
+.badge{background:rgba(255,255,255,.15);padding:3px 9px;border-radius:20px;font-size:11px;display:inline-block;margin:3px 2px 0 0;}
+
+/* FASE NAV */
+.fase-nav{display:flex;background:#1A1A2E;overflow-x:auto;}
+.fase-btn{flex:1;min-width:72px;border:none;cursor:pointer;padding:12px 4px;font-size:11px;font-weight:700;color:rgba(255,255,255,.45);transition:all .2s;border-bottom:3px solid transparent;background:transparent;line-height:1.4;}
+.fase-btn:hover{color:white;}
+.fase-btn.active{color:white;border-bottom-width:3px;}
+.fase-btn[data-f="f1"].active{border-bottom-color:var(--f1);color:#A9DFBF;}
+.fase-btn[data-f="f2"].active{border-bottom-color:var(--f2b);color:var(--f2b);}
+.fase-btn[data-f="f3"].active{border-bottom-color:var(--f3b);color:var(--f3b);}
+.fase-btn[data-f="f4"].active{border-bottom-color:var(--f4b);color:var(--f4b);}
+.fase-btn[data-f="f5"].active{border-bottom-color:var(--f5b);color:var(--f5b);}
+.sub-nav{display:flex;background:#263547;overflow-x:auto;border-bottom:1px solid #1A2535;}
+.sub-btn{border:none;cursor:pointer;padding:8px 14px;font-size:11px;font-weight:600;color:rgba(255,255,255,.45);background:transparent;white-space:nowrap;transition:all .2s;border-bottom:2px solid transparent;}
+.sub-btn:hover{color:white;}
+.sub-btn.active{color:white;border-bottom-color:rgba(255,255,255,.6);}
+
+main{max-width:1280px;margin:0 auto;padding:16px 16px 60px;}
+.fase-content{display:none;}.fase-content.active{display:block;}
+.sub-content{display:none;}.sub-content.active{display:block;}
+
+/* LAYOUT */
+.sec{padding:9px 14px;border-radius:6px 6px 0 0;font-weight:700;font-size:13px;color:white;margin-top:16px;}
+.hero{border-radius:10px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.1);margin:14px 0;}
+.hero-hdr{padding:16px 20px;color:white;display:flex;align-items:center;gap:14px;}
+.hero-hdr h2{font-size:17px;font-weight:800;}
+.hero-hdr p{font-size:12px;opacity:.9;margin-top:2px;}
+.hero-body{background:white;padding:14px 18px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.kpi{text-align:center;padding:8px;border-radius:8px;}
+.kpi-num{font-size:22px;font-weight:800;}
+.kpi-lbl{font-size:10px;font-weight:700;color:#666;margin-top:2px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0;}
+.card{background:white;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.07);overflow:hidden;}
+.card-hdr{padding:9px 14px;font-weight:700;font-size:12px;color:white;}
+.card-body{padding:13px;}
+.card-body p{font-size:12px;color:#444;line-height:1.7;margin-bottom:5px;}
+.param{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;margin:2px 2px 4px 0;background:var(--greyl);color:var(--grey);}
+.slot{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;font-size:12px;}
+.slot-time{background:var(--greyl);color:var(--grey);padding:2px 7px;border-radius:4px;font-weight:700;font-size:11px;white-space:nowrap;min-width:48px;text-align:center;}
+.slot-body{color:#444;line-height:1.5;}
+.slot-body strong{color:#1A1A1A;}
+.al{padding:10px 13px;border-radius:6px;font-size:12px;margin:7px 0;}
+.al-g{background:var(--f1l);border-left:4px solid var(--f1);color:#145A32;}
+.al-b{background:var(--f2l);border-left:4px solid var(--f2);color:#1A5276;}
+.al-r{background:var(--f3l);border-left:4px solid var(--f3);color:#7B0000;}
+.al-y{background:var(--f4l);border-left:4px solid #F1C40F;color:var(--f4);}
+.al-v{background:var(--f5l);border-left:4px solid var(--f5);color:var(--f5);}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;margin:0 0 12px;border-radius:0 0 6px 6px;box-shadow:0 2px 8px rgba(0,0,0,.07);}
+table{width:100%;border-collapse:collapse;background:white;font-size:12px;}
+th{padding:7px 9px;text-align:center;font-weight:700;font-size:11px;color:white;}
+td{padding:6px 9px;border-bottom:1px solid #EEE;vertical-align:middle;}
+tr:nth-child(even) td{background:#FAFAFA;}
+.editable-row:hover td{background:#FFFDE7;}
+.tl{text-align:left;}.tc{text-align:center;}
+.tag{display:inline-block;padding:2px 7px;border-radius:12px;font-size:10px;font-weight:700;}
+.t1{background:var(--f1l);color:var(--f1);}.t2{background:var(--f2l);color:var(--f2);}
+.t3{background:var(--f3l);color:var(--f3);}.t4{background:var(--f4l);color:var(--f4);}
+.t5{background:var(--f5l);color:var(--f5);}.tall{background:var(--greyl);color:var(--grey);}
+.pc td:first-child{font-weight:700;background:#EBF5FB;color:var(--f2);min-width:155px;}
+.scarico{background:#D6EAF8!important;color:#1A5276!important;font-weight:700!important;}
+.tl-v{background:#C8E6C9!important;color:#1A7A3A!important;font-weight:700;}
+.tl-y{background:#FFF9C4!important;color:#7D6608!important;font-weight:700;}
+.tl-r{background:#FFCDD2!important;color:#7B0000!important;font-weight:700;}
+.f1bg{background:var(--f1l)!important;color:var(--f1)!important;font-weight:700;}
+.f2bg{background:var(--f2l)!important;color:var(--f2)!important;font-weight:700;}
+.f3bg{background:var(--f3l)!important;color:var(--f3)!important;font-weight:700;}
+.f4bg{background:var(--f4l)!important;color:var(--f4)!important;font-weight:700;}
+.f5bg{background:var(--f5l)!important;color:var(--f5)!important;font-weight:700;}
+
+/* PRINT */
+@media print{
+  #toolbar,.fase-nav,.sub-nav{display:none!important;}
+  body{background:white;}
+  main{padding:0;max-width:100%;}
+  .fase-content,.sub-content{display:block!important;}
+  .hero-body{grid-template-columns:repeat(5,1fr);}
+  .g2{grid-template-columns:1fr 1fr;}
+  .g3{grid-template-columns:repeat(3,1fr);}
+  .tbl-wrap{box-shadow:none;overflow:visible;}
+  .print-phase-break{page-break-before:always;}
+  header,th,.card-hdr,.sec,.hero-hdr,.f1bg,.f2bg,.f3bg,.f4bg,.f5bg,.scarico,.tl-v,.tl-y,.tl-r{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .fase-content.no-print{display:none!important;}
+  .hdr-logo svg *{fill:#1A1A2E!important;}
+}
+
+@media(max-width:768px){
+  .g2,.g3{grid-template-columns:1fr 1fr;}
+  .hero-body{grid-template-columns:repeat(3,1fr);}
+}
+
+/* PDF MODAL */
+#pdf-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:center;justify-content:center;}
+#pdf-modal.open{display:flex;}
+.modal-box{background:white;border-radius:12px;padding:28px;max-width:400px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,.3);}
+.modal-box h3{font-size:16px;font-weight:800;margin-bottom:6px;}
+.modal-box p{font-size:12px;color:#666;margin-bottom:18px;}
+.modal-opt{border:none;cursor:pointer;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:700;text-align:left;display:flex;align-items:center;gap:10px;transition:all .2s;width:100%;margin-bottom:8px;}
+.modal-opt:hover{transform:translateX(4px);}
+.modal-close{margin-top:6px;width:100%;border:1.5px solid #DDD;background:white;padding:8px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;color:#666;}
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <span>STRUMENTI:</span>
+  <button class="tbtn tbtn-edit" id="edit-btn" onclick="toggleEdit()">Modifica</button>
+  <span id="edit-hint" class="edit-hint">● Clicca su qualsiasi testo o valore per modificarlo</span>
+  <button class="tbtn tbtn-save" onclick="saveChanges()" style="display:none;" id="save-btn">Salva</button>
+  <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
+    <span>STAMPA:</span>
+    <button class="tbtn tbtn-pdf" onclick="printActive()">Fase Attiva</button>
+    <button class="tbtn tbtn-pdf2" onclick="openPdfModal()">Seleziona Fasi</button>
+    <button class="tbtn tbtn-pdf3" onclick="printAll()">Tutto</button>
+  </div>
+</div>
+
+<!-- PDF MODAL -->
+<div id="pdf-modal">
+  <div class="modal-box">
+    <h3>Seleziona le fasi da stampare</h3>
+    <p>Scegli le fasi da includere nel documento PDF.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;" id="phase-checks">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" value="f1" checked style="width:16px;height:16px;"> F1 — Preparazione Generale</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" value="f2" checked style="width:16px;height:16px;"> F2 — Preparazione Specifica</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" value="f3" checked style="width:16px;height:16px;"> F3 — Pre-Gara</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" value="f4" checked style="width:16px;height:16px;"> F4 — Competizione</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" value="f5" checked style="width:16px;height:16px;"> F5 — Transizione</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" value="carico" checked style="width:16px;height:16px;"> Piano Carico Annuale</label>
+    </div>
+    <button class="modal-opt" style="background:#8E44AD;color:white;" onclick="printSelected()">Stampa / Salva PDF</button>
+    <button class="modal-close" onclick="closePdfModal()">Annulla</button>
+  </div>
+</div>
+
+<header>
+  <div class="hdr-row">
+    <div class="hdr-logo">
+      <!-- Minimal karate silhouette mark — no emoji -->
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="7" r="4" fill="#1A1A2E"/>
+        <line x1="20" y1="11" x2="20" y2="26" stroke="#1A1A2E" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="20" y1="17" x2="10" y2="22" stroke="#1A1A2E" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="20" y1="17" x2="32" y2="13" stroke="#1A1A2E" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="20" y1="26" x2="14" y2="36" stroke="#1A1A2E" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="20" y1="26" x2="26" y2="36" stroke="#1A1A2E" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <h1>PIANO DI ALLENAMENTO KARATE — TUTTE LE FASI</h1>
+      <p>M° Colussi Stefano — ASD CSKS Karate Mestre &nbsp;|&nbsp; Agonista Competitivo &nbsp;|&nbsp; Periodizzazione annuale completa</p>
+      <span class="badge" style="background:rgba(26,122,58,.4);">F1 Prep. Generale</span>
+      <span class="badge" style="background:rgba(26,82,118,.4);">F2 Prep. Specifica</span>
+      <span class="badge" style="background:rgba(123,0,0,.4);">F3 Pre-Gara</span>
+      <span class="badge" style="background:rgba(125,102,8,.4);">F4 Competizione</span>
+      <span class="badge" style="background:rgba(91,44,111,.4);">F5 Transizione</span>
+    </div>
+  </div>
+</header>
+
+<div class="fase-nav">
+  <button class="fase-btn active" data-f="f1" onclick="showFase('f1',this)">F1<br><span style="font-size:10px;font-weight:400;">Generale</span></button>
+  <button class="fase-btn" data-f="f2" onclick="showFase('f2',this)">F2<br><span style="font-size:10px;font-weight:400;">Specifica</span></button>
+  <button class="fase-btn" data-f="f3" onclick="showFase('f3',this)">F3<br><span style="font-size:10px;font-weight:400;">Pre-Gara</span></button>
+  <button class="fase-btn" data-f="f4" onclick="showFase('f4',this)">F4<br><span style="font-size:10px;font-weight:400;">Competizione</span></button>
+  <button class="fase-btn" data-f="f5" onclick="showFase('f5',this)">F5<br><span style="font-size:10px;font-weight:400;">Transizione</span></button>
+  <button class="fase-btn" data-f="carico" onclick="showFase('carico',this)" style="border-left:1px solid rgba(255,255,255,.1);">Piano<br><span style="font-size:10px;font-weight:400;">Carico</span></button>
+</div>
+<div class="sub-nav" id="sub-nav"></div>
+
+<main>
+
+<!-- ═══ F1 ═══ -->
+<div id="fase-f1" class="fase-content active">
+  <div id="f1-overview" class="sub-content active">
+    <div class="hero">
+      <div class="hero-hdr" style="background:linear-gradient(135deg,#1A7A3A,#239B56);">
+        <div>
+          <h2>F1 — PREPARAZIONE GENERALE</h2>
+          <p>M° Colussi — ASD CSKS Karate Mestre &nbsp;|&nbsp; Costruire le fondamenta fisiche e tecniche.</p>
+        </div>
+      </div>
+      <div class="hero-body">
+        <div class="kpi" style="background:var(--f1l);"><div class="kpi-num" style="color:var(--f1);" contenteditable="false">8-10</div><div class="kpi-lbl">SETTIMANE</div></div>
+        <div class="kpi" style="background:var(--f1l);"><div class="kpi-num" style="color:var(--f1);" contenteditable="false">5-6</div><div class="kpi-lbl">SESS./SETT.</div></div>
+        <div class="kpi" style="background:var(--f1l);"><div class="kpi-num" style="color:var(--f1);" contenteditable="false">6-7</div><div class="kpi-lbl">RPE TARGET</div></div>
+        <div class="kpi" style="background:var(--f1l);"><div class="kpi-num" style="color:var(--f1);" contenteditable="false">85%</div><div class="kpi-lbl">MAX RM</div></div>
+        <div class="kpi" style="background:var(--f1l);"><div class="kpi-num" style="color:var(--f1);" contenteditable="false">S4</div><div class="kpi-lbl">SCARICO</div></div>
+      </div>
+    </div>
+    <div class="al al-g"><strong>Obiettivo F1:</strong> <span contenteditable="false">costruire forza massimale, base aerobica solida, automatizzare la tecnica secondo il metodo M° Colussi in closed skill. NON si va forte, si va GIUSTO. Qualità > quantità in ogni ripetizione.</span></div>
+    <div class="g3">
+      <div class="card"><div class="card-hdr" style="background:var(--f1);">Forza Massimale</div><div class="card-body">
+        <p contenteditable="false"><strong>Squat bilanciere</strong> — 4×4 rep @ 85% RM. Concentrica esplosiva, eccentrica 3 sec.</p>
+        <p contenteditable="false"><strong>Stacco da terra</strong> — 4×5 rep @ 80% RM. Schiena neutra obbligatoria.</p>
+        <p contenteditable="false"><strong>Push up / Panca</strong> — 3×8 @ 75% RM. Concentrica esplosiva. Base per potenza del pugno.</p>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f1);">Base Aerobica</div><div class="card-body">
+        <p contenteditable="false"><strong>Corsa continua 30-40 min</strong> — FC target 130-150. Costruisce il motore aerobico base.</p>
+        <p contenteditable="false"><strong>Fartlek tecnico</strong> — 20 min alternando 2 min corsa + 1 min shadowboxing 60%.</p>
+        <p contenteditable="false"><strong>Cooper 12 min</strong> (benchmark V-08) — eseguire a S1 e a fine F1 per misurare il progresso.</p>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f1);">Tecnica M° Colussi — Closed Skill</div><div class="card-body">
+        <p contenteditable="false"><strong>Gyaku tsuki allo specchio</strong> — 3×60 rep (20 lento + 20 medio + 20 max). Forma corretta ogni rep.</p>
+        <p contenteditable="false"><strong>Kizami tsuki 4 varianti</strong> — 3×15 per variante. Automatizzare prima di accelerare.</p>
+        <p contenteditable="false"><strong>Mawashi geri step 1 e 2</strong> — 10 min/step ogni seduta. Non passare allo step successivo senza automatismo.</p>
+      </div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="card-hdr" style="background:var(--f1);">Flessibilità — Quotidiana</div><div class="card-body">
+        <p contenteditable="false">Stretching statico profondo: butterfly, hip flexor, hamstring, piriforme, polpaccio. Spaccata progressiva 60 sec × 3. Leg swing laterale 30 rep/gamba. La flessibilità si costruisce in F1, non si recupera in F3.</p>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f1);">Prevenzione — Non Opzionale</div><div class="card-body">
+        <p contenteditable="false"><strong>CC-34 Ginocchio:</strong> TKE, squat monopodalico eccentrico, ponte glutei.<br>
+        <strong>CC-35 Caviglia:</strong> sollevamenti punte monopodalici, inversioni elastic band.<br>
+        <strong>CC-36 Spalla:</strong> external rotation, face pull, Y-T-W. Ogni giorno senza eccezioni.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <div id="f1-settimane" class="sub-content">
+    <div class="sec" style="background:var(--f1);">PIANO 10 SETTIMANE — F1</div>
+    <div class="tbl-wrap"><table>
+      <tr>
+        <th style="background:var(--f1);text-align:left;min-width:160px;">PARAMETRO</th>
+        <th style="background:var(--f1);">S1</th><th style="background:var(--f1);">S2</th><th style="background:var(--f1);">S3</th>
+        <th style="background:#0E6655;">S4 Scarico</th>
+        <th style="background:var(--f1);">S5</th><th style="background:var(--f1);">S6</th><th style="background:var(--f1);">S7</th>
+        <th style="background:#0E6655;">S8 Scarico</th>
+        <th style="background:var(--f1);">S9</th><th style="background:var(--f1);">S10</th>
+      </tr>
+      <tr class="editable-row"><td>Sessioni/sett.</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td></tr>
+      <tr class="editable-row"><td>Volume tot.(min)</td><td class="tc" contenteditable="false">300</td><td class="tc" contenteditable="false">320</td><td class="tc" contenteditable="false">350</td><td class="tc scarico" contenteditable="false">280</td><td class="tc" contenteditable="false">360</td><td class="tc" contenteditable="false">370</td><td class="tc" contenteditable="false">385</td><td class="tc scarico" contenteditable="false">300</td><td class="tc" contenteditable="false">390</td><td class="tc" contenteditable="false">400</td></tr>
+      <tr class="editable-row"><td>RPE target</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">7</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">7</td><td class="tc" contenteditable="false">7</td><td class="tc" contenteditable="false">7</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">7</td><td class="tc" contenteditable="false">7</td></tr>
+      <tr class="editable-row"><td>Training Load</td><td class="tc tl-v" contenteditable="false">1800</td><td class="tc tl-v" contenteditable="false">1920</td><td class="tc tl-y" contenteditable="false">2450</td><td class="tc scarico" contenteditable="false">1400</td><td class="tc tl-v" contenteditable="false">2520</td><td class="tc tl-v" contenteditable="false">2590</td><td class="tc tl-y" contenteditable="false">2695</td><td class="tc scarico" contenteditable="false">1500</td><td class="tc tl-y" contenteditable="false">2730</td><td class="tc tl-y" contenteditable="false">2800</td></tr>
+      <tr class="editable-row"><td>Forza max (%RM)</td><td class="tc" contenteditable="false">80%</td><td class="tc" contenteditable="false">82%</td><td class="tc" contenteditable="false">85%</td><td class="tc scarico" contenteditable="false">65%</td><td class="tc" contenteditable="false">85%</td><td class="tc" contenteditable="false">87%</td><td class="tc" contenteditable="false">88%</td><td class="tc scarico" contenteditable="false">70%</td><td class="tc" contenteditable="false">88%</td><td class="tc" contenteditable="false">90%</td></tr>
+      <tr class="editable-row"><td>Aerobica (min/ses)</td><td class="tc" contenteditable="false">30</td><td class="tc" contenteditable="false">30</td><td class="tc" contenteditable="false">35</td><td class="tc scarico" contenteditable="false">20</td><td class="tc" contenteditable="false">35</td><td class="tc" contenteditable="false">40</td><td class="tc" contenteditable="false">40</td><td class="tc scarico" contenteditable="false">25</td><td class="tc" contenteditable="false">40</td><td class="tc" contenteditable="false">40</td></tr>
+      <tr class="editable-row"><td>Flex (min/die)</td><td class="tc" contenteditable="false">15</td><td class="tc" contenteditable="false">15</td><td class="tc" contenteditable="false">20</td><td class="tc scarico" contenteditable="false">15</td><td class="tc" contenteditable="false">20</td><td class="tc" contenteditable="false">20</td><td class="tc" contenteditable="false">20</td><td class="tc scarico" contenteditable="false">15</td><td class="tc" contenteditable="false">20</td><td class="tc" contenteditable="false">20</td></tr>
+    </table></div>
+  </div>
+
+  <div id="f1-sessioni" class="sub-content">
+    <div class="sec" style="background:var(--f1);">SESSIONI TIPO — F1</div>
+    <div class="g3" style="margin-top:12px;">
+      <div class="card"><div class="card-hdr" style="background:var(--f1);" contenteditable="false">Sessione A — Forza + Tecnica · 90 min</div><div class="card-body">
+        <div class="slot"><span class="slot-time" contenteditable="false">0-12'</span><div class="slot-body" contenteditable="false"><strong>Riscaldamento dinamico</strong><br>Leg swing, hip circle, arm circle, calcio controllato progressivo.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">12-35'</span><div class="slot-body" contenteditable="false"><strong>Forza massimale</strong><br>Squat 4×4 @ 85% + Stacco 4×5 @ 80%. Recupero 3-4 min.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">35-50'</span><div class="slot-body" contenteditable="false"><strong>Forza esplosiva</strong><br>Squat jump 3×8. Kettlebell swing 3×15. Rec 90 sec.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">50-70'</span><div class="slot-body" contenteditable="false"><strong>Tecnica M° Colussi allo specchio</strong><br>Gyaku 3×60. Kizami 3×15. Mawashi step 1 (10 min).</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">70-90'</span><div class="slot-body" contenteditable="false"><strong>Defaticamento + Flessibilità</strong><br>Stretching statico 20 min. Prevenzione CC-34+35+36.</div></div>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f1);" contenteditable="false">Sessione B — Aerobica + Core · 70 min</div><div class="card-body">
+        <div class="slot"><span class="slot-time" contenteditable="false">0-8'</span><div class="slot-body" contenteditable="false"><strong>Attivazione leggera</strong><br>Camminata veloce + mobilità articolare.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">8-40'</span><div class="slot-body" contenteditable="false"><strong>Base aerobica</strong><br>Corsa FC 130-150 per 30-35 min. Ritmo costante.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">40-58'</span><div class="slot-body" contenteditable="false"><strong>Core stability</strong><br>Plank 3×45s · Side plank 3×30s · Russian twist 3×20 · Dead bug 3×10.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">58-70'</span><div class="slot-body" contenteditable="false"><strong>Flessibilità + Prevenzione</strong><br>Stretch profondo anca e hamstring. CC-35 caviglia.</div></div>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f1);" contenteditable="false">Sessione C — Tecnica Completa · 80 min</div><div class="card-body">
+        <div class="slot"><span class="slot-time" contenteditable="false">0-10'</span><div class="slot-body" contenteditable="false"><strong>Riscaldamento + mobilità</strong><br>Stretching dinamico + mobilità toracica.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">10-30'</span><div class="slot-body" contenteditable="false"><strong>Kihon closed skill</strong><br>Gyaku + Kizami specchio. 3 velocità. Focus forma M° Colussi.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">30-50'</span><div class="slot-body" contenteditable="false"><strong>Mawashi step 1+2</strong><br>10 min per step. Lento e controllato. No fretta.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">50-70'</span><div class="slot-body" contenteditable="false"><strong>Velocità base piedi</strong><br>Ladder drills 3×10. Sprint 10m da guardia ×6.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">70-80'</span><div class="slot-body" contenteditable="false"><strong>Flessibilità + Mental 10'</strong><br>Spaccata progressiva. Visualizzazione tecnica corretta.</div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div id="f1-esercizi" class="sub-content">
+    <div class="sec" style="background:var(--f1);">ESERCIZI CHIAVE — F1 · M° Colussi Stefano</div>
+    <div class="tbl-wrap"><table>
+      <tr>
+        <th style="background:var(--f1);text-align:left;width:55px;">ID</th>
+        <th style="background:var(--f1);text-align:left;min-width:190px;">ESERCIZIO</th>
+        <th style="background:var(--f1);">CAPACITÀ</th>
+        <th style="background:var(--f1);">VOLUME</th>
+        <th style="background:var(--f1);">RECUPERO</th>
+        <th style="background:var(--f1);">INTENSITÀ</th>
+        <th style="background:var(--f1);">FREQ./SETT.</th>
+        <th style="background:var(--f1);text-align:left;">NOTE</th>
+      </tr>
+      <tr class="editable-row"><td contenteditable="false">CC-09</td><td class="tl" contenteditable="false">Squat bilanciere</td><td class="tc"><span class="tag t1">Forza Max</span></td><td class="tc" contenteditable="false">4×4 rep</td><td class="tc" contenteditable="false">3-4 min</td><td class="tc" contenteditable="false">85-90% RM</td><td class="tc" contenteditable="false">2</td><td contenteditable="false">Concentrica esplosiva. Eccentrica 3 sec.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">CC-10</td><td class="tl" contenteditable="false">Stacco da terra</td><td class="tc"><span class="tag t1">Forza Max</span></td><td class="tc" contenteditable="false">4×5 rep</td><td class="tc" contenteditable="false">3-4 min</td><td class="tc" contenteditable="false">80-85% RM</td><td class="tc" contenteditable="false">2</td><td contenteditable="false">Schiena neutra obbligatoria.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">CC-01</td><td class="tl" contenteditable="false">Squat Jump + guardia</td><td class="tc"><span class="tag t1">Esplosiva</span></td><td class="tc" contenteditable="false">3×8</td><td class="tc" contenteditable="false">90 sec</td><td class="tc" contenteditable="false">Max</td><td class="tc" contenteditable="false">2-3</td><td contenteditable="false">Atterraggio morbido in guardia.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">CC-46</td><td class="tl" contenteditable="false">Kettlebell Swing</td><td class="tc"><span class="tag t1">Esplosiva</span></td><td class="tc" contenteditable="false">4×15</td><td class="tc" contenteditable="false">90 sec</td><td class="tc" contenteditable="false">Moderata</td><td class="tc" contenteditable="false">2</td><td contenteditable="false">Esplosione anche. Non è uno squat.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">K-01</td><td class="tl" contenteditable="false">Gyaku tsuki specchio</td><td class="tc"><span class="tag t1">Tecnica</span></td><td class="tc" contenteditable="false">3×60 rep</td><td class="tc" contenteditable="false">30 sec</td><td class="tc" contenteditable="false">Lento→Max</td><td class="tc" contenteditable="false">Ogni sed.</td><td contenteditable="false">20 lento + 20 medio + 20 max.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">K-03</td><td class="tl" contenteditable="false">Mawashi step 1+2</td><td class="tc"><span class="tag t1">Tecnica</span></td><td class="tc" contenteditable="false">10 min/step</td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">Media</td><td class="tc" contenteditable="false">Ogni sed.</td><td contenteditable="false">Non passare allo step senza automatismo.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">CC-34</td><td class="tl" contenteditable="false">Rinforzo ginocchio</td><td class="tc"><span class="tag t1">Prev.</span></td><td class="tc" contenteditable="false">3×20</td><td class="tc" contenteditable="false">45 sec</td><td class="tc" contenteditable="false">Moderata</td><td class="tc" contenteditable="false">Ogni die</td><td contenteditable="false">TKE + squat eccentrico + ponte glutei.</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══ F2 ═══ -->
+<div id="fase-f2" class="fase-content">
+  <div id="f2-overview" class="sub-content active">
+    <div class="hero">
+      <div class="hero-hdr" style="background:linear-gradient(135deg,#1A5276,#2471A3);">
+        <div>
+          <h2>F2 — PREPARAZIONE SPECIFICA</h2>
+          <p>M° Colussi — ASD CSKS Karate Mestre &nbsp;|&nbsp; Convertire la forza in potenza da combattimento.</p>
+        </div>
+      </div>
+      <div class="hero-body">
+        <div class="kpi" style="background:var(--f2l);"><div class="kpi-num" style="color:var(--f2);" contenteditable="false">8-10</div><div class="kpi-lbl">SETTIMANE</div></div>
+        <div class="kpi" style="background:var(--f2l);"><div class="kpi-num" style="color:var(--f2);" contenteditable="false">6</div><div class="kpi-lbl">SESS./SETT.</div></div>
+        <div class="kpi" style="background:var(--f2l);"><div class="kpi-num" style="color:var(--f2);" contenteditable="false">7-8</div><div class="kpi-lbl">RPE TARGET</div></div>
+        <div class="kpi" style="background:var(--f2l);"><div class="kpi-num" style="color:var(--f2);" contenteditable="false">4→6</div><div class="kpi-lbl">ROUND BUILD-UP</div></div>
+        <div class="kpi" style="background:var(--f2l);"><div class="kpi-num" style="color:var(--f2);" contenteditable="false">S4</div><div class="kpi-lbl">SCARICO OBBL.</div></div>
+      </div>
+    </div>
+    <div class="al al-b"><strong>Obiettivo F2:</strong> <span contenteditable="false">la forza diventa esplosività. La tecnica diventa reazione. Build-up da 4 a 6 round HIIT. Mawashi step 1+2 automatizzati, preparare step 3.</span></div>
+    <div class="g3">
+      <div class="card"><div class="card-hdr" style="background:var(--f2);">Forza Esplosiva (picco)</div><div class="card-body">
+        <p contenteditable="false"><strong>Box Jump con tecnica</strong> — 4×6. Tecnica immediata al rimbalzo. Minimo contatto terra.</p>
+        <p contenteditable="false"><strong>Bound laterale pliometrico</strong> — 5×6 rimbalzi. Replica dinamica del crab step.</p>
+        <p contenteditable="false"><strong>Flessioni pliometriche clap</strong> — 3×8. Forza max mantenimento 2×/sett @ 75% RM.</p>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f2);">Resistenza Specifica Build-up</div><div class="card-body">
+        <p contenteditable="false"><strong>Interval 3 min / 1 min off</strong> — 4→6 round, +1 ogni 2 sett. Tecnica corretta anche sotto fatica.</p>
+        <p contenteditable="false"><strong>Piramide 1-2-3-2-1 min</strong> — 9 min totali. Alternare con Interval ogni settimana.</p>
+        <p contenteditable="false"><strong>Circuit training 6 stazioni</strong> — 2-3 giri. Replica complessità della gara.</p>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f2);">Velocità e Reazione Avanzata</div><div class="card-body">
+        <p contenteditable="false"><strong>Reazione stimolo tattile</strong> — zona di tocco → tecnica specifica. 3×10 stimoli.</p>
+        <p contenteditable="false"><strong>Reazione al colore (4 tecniche)</strong> — ogni colore = tecnica diversa. 3×20.</p>
+        <p contenteditable="false"><strong>Serie 10 tsuki al pao</strong> — target &lt;4 sec. 5 serie. Benchmark V-02 ogni 2 sett.</p>
+      </div></div>
+    </div>
+  </div>
+  <div id="f2-settimane" class="sub-content">
+    <div class="sec" style="background:var(--f2);">PIANO 10 SETTIMANE — F2</div>
+    <div class="tbl-wrap"><table>
+      <tr>
+        <th style="background:var(--f2);text-align:left;min-width:160px;">PARAMETRO</th>
+        <th style="background:var(--f2);">S1</th><th style="background:var(--f2);">S2</th><th style="background:var(--f2);">S3</th>
+        <th style="background:#0B4C6C;">S4 Scarico</th>
+        <th style="background:var(--f2);">S5</th><th style="background:var(--f2);">S6</th><th style="background:var(--f2);">S7</th>
+        <th style="background:#0B4C6C;">S8 Scarico</th>
+        <th style="background:var(--f2);">S9</th><th style="background:var(--f2);">S10</th>
+      </tr>
+      <tr class="editable-row"><td>Sessioni/sett.</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td></tr>
+      <tr class="editable-row"><td>Volume tot.(min)</td><td class="tc" contenteditable="false">360</td><td class="tc" contenteditable="false">380</td><td class="tc" contenteditable="false">400</td><td class="tc scarico" contenteditable="false">300</td><td class="tc" contenteditable="false">410</td><td class="tc" contenteditable="false">420</td><td class="tc" contenteditable="false">430</td><td class="tc scarico" contenteditable="false">320</td><td class="tc" contenteditable="false">440</td><td class="tc" contenteditable="false">450</td></tr>
+      <tr class="editable-row"><td>RPE target</td><td class="tc" contenteditable="false">7</td><td class="tc" contenteditable="false">7</td><td class="tc" contenteditable="false">8</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">8</td><td class="tc" contenteditable="false">8</td><td class="tc" contenteditable="false">8</td><td class="tc scarico" contenteditable="false">6</td><td class="tc" contenteditable="false">8</td><td class="tc" contenteditable="false">8</td></tr>
+      <tr class="editable-row"><td>Training Load</td><td class="tc tl-v" contenteditable="false">2520</td><td class="tc tl-v" contenteditable="false">2660</td><td class="tc tl-y" contenteditable="false">3200</td><td class="tc scarico" contenteditable="false">1500</td><td class="tc tl-y" contenteditable="false">3280</td><td class="tc tl-r" contenteditable="false">3360</td><td class="tc tl-r" contenteditable="false">3440</td><td class="tc scarico" contenteditable="false">1920</td><td class="tc tl-r" contenteditable="false">3520</td><td class="tc tl-r" contenteditable="false">3600</td></tr>
+      <tr class="editable-row"><td>Resist. round</td><td class="tc" contenteditable="false">4</td><td class="tc" contenteditable="false">4</td><td class="tc" contenteditable="false">5</td><td class="tc scarico" contenteditable="false">3</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">4</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td></tr>
+      <tr class="editable-row"><td>Mawashi step</td><td class="tc" contenteditable="false">Step 1</td><td class="tc" contenteditable="false">Step 1</td><td class="tc" contenteditable="false">Step 1+2</td><td class="tc scarico" contenteditable="false">Step 1</td><td class="tc" contenteditable="false">Step 2</td><td class="tc" contenteditable="false">Step 2</td><td class="tc" contenteditable="false">Step 2</td><td class="tc scarico" contenteditable="false">Step 2</td><td class="tc" contenteditable="false">Step 2</td><td class="tc" contenteditable="false">Step 2 ok</td></tr>
+    </table></div>
+  </div>
+  <div id="f2-sessioni" class="sub-content">
+    <div class="sec" style="background:var(--f2);">SESSIONI TIPO — F2</div>
+    <div class="g3" style="margin-top:12px;">
+      <div class="card"><div class="card-hdr" style="background:var(--f2);" contenteditable="false">Sessione A — Velocità + Tecnica · 80 min</div><div class="card-body">
+        <div class="slot"><span class="slot-time" contenteditable="false">0-12'</span><div class="slot-body" contenteditable="false"><strong>Riscaldamento</strong><br>Dinamico + shadowboxing leggero 60%.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">12-30'</span><div class="slot-body" contenteditable="false"><strong>Reazione stimolo</strong><br>4 stimoli × 4 tecniche. 3×20. 100% a corpo fresco.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">30-45'</span><div class="slot-body" contenteditable="false"><strong>Shadowboxing 30/30</strong><br>10 round. Alternare pugno/gamba. Contare le tecniche.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">45-65'</span><div class="slot-body" contenteditable="false"><strong>Tecnica M° Colussi avanzata</strong><br>Kizami+Gyaku+Mawashi step 2: 3×15. Avanzamento: 3×15.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">65-80'</span><div class="slot-body" contenteditable="false"><strong>Defaticamento + flessibilità</strong><br>Stretching profondo 15 min.</div></div>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f2);" contenteditable="false">Sessione B — Resistenza + Tattica · 90 min</div><div class="card-body">
+        <div class="slot"><span class="slot-time" contenteditable="false">0-12'</span><div class="slot-body" contenteditable="false"><strong>Riscaldamento + tecnica leggera</strong><br>Combinazione base al 60%.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">12-40'</span><div class="slot-body" contenteditable="false"><strong>HIIT Kumite 4-6 × 3 min</strong><br>Rec 60→45 sec. +1 round ogni 2 sett.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">40-55'</span><div class="slot-body" contenteditable="false"><strong>Tattica — 3 situazioni</strong><br>5 sim./situazione. Automatizzare vantaggio, rimonta, 30 sec.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">55-70'</span><div class="slot-body" contenteditable="false"><strong>Tabata tecnico 20/10×8</strong><br>Una sola tecnica per sessione. Contare le rip.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">70-90'</span><div class="slot-body" contenteditable="false"><strong>Mental + defaticamento</strong><br>10 min visualizzazione. Stretch 10 min.</div></div>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f2);" contenteditable="false">Sessione C — Esplosiva + Forza · 85 min</div><div class="card-body">
+        <div class="slot"><span class="slot-time" contenteditable="false">0-12'</span><div class="slot-body" contenteditable="false"><strong>Riscaldamento completo</strong><br>Dinamico + attivazione SNC (sprint 3×5 sec).</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">12-35'</span><div class="slot-body" contenteditable="false"><strong>Forza esplosiva</strong><br>Box jump 4×6 · Bound lat. 5×6 · Flex plio 3×8. Rec 2 min.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">35-55'</span><div class="slot-body" contenteditable="false"><strong>Forza max mantenimento</strong><br>Squat 3×6 @ 75% · Stacco 3×5 @ 70%.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">55-70'</span><div class="slot-body" contenteditable="false"><strong>Mawashi step 1+2 dedicato</strong><br>10 min step 1 + 10 min step 2. No fretta.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">70-85'</span><div class="slot-body" contenteditable="false"><strong>Flessibilità + prevenzione</strong><br>Stretching + CC-34+35+36.</div></div>
+      </div></div>
+    </div>
+  </div>
+  <div id="f2-esercizi" class="sub-content">
+    <div class="sec" style="background:var(--f2);">ESERCIZI CHIAVE — F2 · M° Colussi Stefano</div>
+    <div class="tbl-wrap"><table>
+      <tr>
+        <th style="background:var(--f2);text-align:left;width:55px;">ID</th>
+        <th style="background:var(--f2);text-align:left;min-width:190px;">ESERCIZIO</th>
+        <th style="background:var(--f2);">CAPACITÀ</th>
+        <th style="background:var(--f2);">VOLUME</th>
+        <th style="background:var(--f2);">RECUPERO</th>
+        <th style="background:var(--f2);">INTENSITÀ</th>
+        <th style="background:var(--f2);">FREQ./SETT.</th>
+        <th style="background:var(--f2);text-align:left;">NOTE</th>
+      </tr>
+      <tr class="editable-row"><td contenteditable="false">CC-04</td><td class="tl" contenteditable="false">Box Jump con tecnica</td><td class="tc"><span class="tag t2">Esplosiva</span></td><td class="tc" contenteditable="false">4×6</td><td class="tc" contenteditable="false">2 min</td><td class="tc" contenteditable="false">Max</td><td class="tc" contenteditable="false">2</td><td contenteditable="false">Tecnica immediata al rimbalzo.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">CC-47</td><td class="tl" contenteditable="false">Bound laterale pliometrico</td><td class="tc"><span class="tag t2">Esplosiva</span></td><td class="tc" contenteditable="false">5×6</td><td class="tc" contenteditable="false">2 min</td><td class="tc" contenteditable="false">Max</td><td class="tc" contenteditable="false">2</td><td contenteditable="false">Replica dinamica crab step.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">CC-17</td><td class="tl" contenteditable="false">Interval 3 min / 1 min off</td><td class="tc"><span class="tag t2">Resistenza</span></td><td class="tc" contenteditable="false">4→6 round</td><td class="tc" contenteditable="false">60 sec</td><td class="tc" contenteditable="false">80-85%</td><td class="tc" contenteditable="false">2-3</td><td contenteditable="false">+1 round ogni 2 sett.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">CC-39</td><td class="tl" contenteditable="false">Reazione al colore 4 tecniche</td><td class="tc"><span class="tag t2">Velocità</span></td><td class="tc" contenteditable="false">3×20</td><td class="tc" contenteditable="false">30 sec</td><td class="tc" contenteditable="false">100%</td><td class="tc" contenteditable="false">3-4</td><td contenteditable="false">4 colori = 4 tecniche. Open skill.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">K-12</td><td class="tl" contenteditable="false">Mawashi step 2 (10 min)</td><td class="tc"><span class="tag t2">Tecnica</span></td><td class="tc" contenteditable="false">10 min</td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">Media</td><td class="tc" contenteditable="false">3</td><td contenteditable="false">Solo dopo automatismo step 1.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">T-15</td><td class="tl" contenteditable="false">Rimonta con calcio (senshu)</td><td class="tc"><span class="tag t2">Tattica</span></td><td class="tc" contenteditable="false">10 sim.</td><td class="tc" contenteditable="false">60 sec</td><td class="tc" contenteditable="false">Alta</td><td class="tc" contenteditable="false">2</td><td contenteditable="false">Da -1pt, -2pt, ultimi 30 sec.</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══ F3 ═══ -->
+<div id="fase-f3" class="fase-content">
+  <div id="f3-overview" class="sub-content active">
+    <div class="hero">
+      <div class="hero-hdr" style="background:linear-gradient(135deg,#7B0000,#C0392B);">
+        <div>
+          <h2>F3 — PRE-GARA</h2>
+          <p>M° Colussi — ASD CSKS Karate Mestre &nbsp;|&nbsp; In F3 non si costruisce, si AFFINA.</p>
+        </div>
+      </div>
+      <div class="hero-body">
+        <div class="kpi" style="background:var(--f3l);"><div class="kpi-num" style="color:var(--f3);" contenteditable="false">4-6</div><div class="kpi-lbl">SETTIMANE</div></div>
+        <div class="kpi" style="background:var(--f3l);"><div class="kpi-num" style="color:var(--f3);" contenteditable="false">5</div><div class="kpi-lbl">SESS./SETT.</div></div>
+        <div class="kpi" style="background:var(--f3l);"><div class="kpi-num" style="color:var(--f3);" contenteditable="false">8</div><div class="kpi-lbl">RPE TARGET</div></div>
+        <div class="kpi" style="background:var(--f3l);"><div class="kpi-num" style="color:var(--f3);" contenteditable="false">6</div><div class="kpi-lbl">ROUND HIIT</div></div>
+        <div class="kpi" style="background:var(--f3l);"><div class="kpi-num" style="color:var(--f3);" contenteditable="false">S4</div><div class="kpi-lbl">SCARICO/GARA</div></div>
+      </div>
+    </div>
+    <div class="al al-r"><strong>Regola F3:</strong> <span contenteditable="false">nessun nuovo esercizio di forza massimale. Solo automatismi già acquisiti con M° Colussi. Il corpo deve arrivare fresco, reattivo, tecnica al 100%.</span></div>
+    <div class="g3">
+      <div class="card"><div class="card-hdr" style="background:var(--f3);">Resistenza al Picco</div><div class="card-body">
+        <p contenteditable="false"><strong>HIIT kumite 6×3 min</strong> — rec 60→45→30 sec. Tecnica corretta anche a fatica massimale.</p>
+        <p contenteditable="false"><strong>Tabata tecnico 20/10×8</strong> — una sola tecnica per sessione. Contare le ripetizioni.</p>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f3);">Velocità al Picco</div><div class="card-body">
+        <p contenteditable="false"><strong>Shadowboxing 30/30 × 10 round</strong> — max velocità. Confrontare con benchmark precedente.</p>
+        <p contenteditable="false"><strong>Serie 10 tsuki al pao</strong> — target &lt;4 sec. 5 serie × 90 sec rec.</p>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f3);">Tecnica M° Colussi Raffinata</div><div class="card-body">
+        <p contenteditable="false"><strong>Mawashi step 3 simultaneo</strong> — solo se step 1+2 automatici. Pugno + calcio insieme. 3×15.</p>
+        <p contenteditable="false"><strong>Combinazione base agonistica</strong> — 3-4×15 max velocità. Solo automatismi già acquisiti.</p>
+      </div></div>
+    </div>
+  </div>
+  <div id="f3-settimane" class="sub-content">
+    <div class="sec" style="background:var(--f3);">PIANO 4-6 SETTIMANE — F3</div>
+    <div class="tbl-wrap"><table>
+      <tr>
+        <th style="background:var(--f3);text-align:left;min-width:160px;">PARAMETRO</th>
+        <th style="background:var(--f3);">S1</th><th style="background:var(--f3);">S2</th>
+        <th style="background:var(--f3);">S3</th><th style="background:#4A0404;">S4 Gara</th>
+      </tr>
+      <tr class="editable-row"><td>Sessioni/sett.</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">4</td><td class="tc scarico" contenteditable="false">2</td></tr>
+      <tr class="editable-row"><td>Volume tot.(min)</td><td class="tc" contenteditable="false">350</td><td class="tc" contenteditable="false">350</td><td class="tc" contenteditable="false">300</td><td class="tc scarico" contenteditable="false">120</td></tr>
+      <tr class="editable-row"><td>RPE target</td><td class="tc" contenteditable="false">8</td><td class="tc" contenteditable="false">8-9</td><td class="tc" contenteditable="false">7-8</td><td class="tc scarico" contenteditable="false">5</td></tr>
+      <tr class="editable-row"><td>Training Load</td><td class="tc tl-y" contenteditable="false">2800</td><td class="tc tl-r" contenteditable="false">3150</td><td class="tc tl-y" contenteditable="false">2400</td><td class="tc scarico" contenteditable="false">600</td></tr>
+      <tr class="editable-row"><td>HIIT round (rec)</td><td class="tc" contenteditable="false">6 (60")</td><td class="tc" contenteditable="false">6 (45")</td><td class="tc" contenteditable="false">4 (60")</td><td class="tc" contenteditable="false">—</td></tr>
+      <tr class="editable-row"><td>Mental (min/die)</td><td class="tc" contenteditable="false">15</td><td class="tc" contenteditable="false">15</td><td class="tc" contenteditable="false">20</td><td class="tc" contenteditable="false">20+</td></tr>
+    </table></div>
+  </div>
+  <div id="f3-sessioni" class="sub-content">
+    <div class="sec" style="background:var(--f3);">SESSIONI TIPO — F3</div>
+    <div class="g3" style="margin-top:12px;">
+      <div class="card"><div class="card-hdr" style="background:var(--f3);" contenteditable="false">Sessione A — Velocità + Tecnica · 70 min</div><div class="card-body">
+        <div class="slot"><span class="slot-time" contenteditable="false">0-10'</span><div class="slot-body" contenteditable="false"><strong>Riscaldamento</strong><br>Leg swing, hip circle, shadow 50-60%.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">10-30'</span><div class="slot-body" contenteditable="false"><strong>Reazione 4 stimoli</strong><br>3×20 imprevedibili. 100% sempre a corpo fresco.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">30-45'</span><div class="slot-body" contenteditable="false"><strong>Shadowboxing 30/30 ×8</strong><br>Max velocità. Contare le tecniche.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">45-60'</span><div class="slot-body" contenteditable="false"><strong>Tecnica M° Colussi + step 3</strong><br>Combinazione base 3×15. Step 3 se automatismo pronto.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">60-70'</span><div class="slot-body" contenteditable="false"><strong>Defaticamento + flessibilità jodan</strong><br>Stretch anca specifico 10 min.</div></div>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f3);" contenteditable="false">Sessione B — Resistenza + Tattica · 75 min</div><div class="card-body">
+        <div class="slot"><span class="slot-time" contenteditable="false">0-12'</span><div class="slot-body" contenteditable="false"><strong>Riscaldamento</strong><br>FC 130 + combinazione base al 70%.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">12-40'</span><div class="slot-body" contenteditable="false"><strong>HIIT Kumite 6×3 min</strong><br>Rec 60→45→30 sec. Tecnica sotto fatica massimale.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">40-55'</span><div class="slot-body" contenteditable="false"><strong>3 situazioni tattiche</strong><br>5 simulazioni per situazione. Solo automatismi.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">55-75'</span><div class="slot-body" contenteditable="false"><strong>Mental + defaticamento</strong><br>10 min visualizzazione. Stretch statico 10 min.</div></div>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f3);" contenteditable="false">Sessione C — Raffinatura + Mental · 60 min</div><div class="card-body">
+        <div class="slot"><span class="slot-time" contenteditable="false">0-10'</span><div class="slot-body" contenteditable="false"><strong>Riscaldamento leggero</strong><br>RPE max 6. Nessuna intensità alta.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">10-25'</span><div class="slot-body" contenteditable="false"><strong>Tecnica allo specchio</strong><br>Solo automatismi M° Colussi. Qualità assoluta.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">25-40'</span><div class="slot-body" contenteditable="false"><strong>Tattica situazione 1</strong><br>5 sim. gestione vantaggio. Nessun rischio inutile.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">40-50'</span><div class="slot-body" contenteditable="false"><strong>Flessibilità jodan 10 min</strong><br>Misurare distanza dal suolo (benchmark V-05).</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">50-60'</span><div class="slot-body" contenteditable="false"><strong>Mental training</strong><br>10 min. 3 match visualizzati con vittoria.</div></div>
+      </div></div>
+    </div>
+  </div>
+  <div id="f3-esercizi" class="sub-content">
+    <div class="sec" style="background:var(--f3);">ESERCIZI CHIAVE — F3 · M° Colussi Stefano</div>
+    <div class="tbl-wrap"><table>
+      <tr>
+        <th style="background:var(--f3);text-align:left;width:55px;">ID</th>
+        <th style="background:var(--f3);text-align:left;min-width:190px;">ESERCIZIO</th>
+        <th style="background:var(--f3);">CAPACITÀ</th>
+        <th style="background:var(--f3);">VOLUME</th>
+        <th style="background:var(--f3);">RECUPERO</th>
+        <th style="background:var(--f3);">FREQ./SETT.</th>
+        <th style="background:var(--f3);text-align:left;">NOTE</th>
+      </tr>
+      <tr class="editable-row"><td contenteditable="false">CC-32</td><td class="tl" contenteditable="false">HIIT Kumite 6×3 min</td><td class="tc"><span class="tag t3">Resistenza</span></td><td class="tc" contenteditable="false">6 round</td><td class="tc" contenteditable="false">60→30 sec</td><td class="tc" contenteditable="false">2-3</td><td contenteditable="false">Ridurre il recupero ogni settimana.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">CC-18</td><td class="tl" contenteditable="false">Tabata tecnico 20/10×8</td><td class="tc"><span class="tag t3">Resistenza</span></td><td class="tc" contenteditable="false">4 min</td><td class="tc" contenteditable="false">10 sec</td><td class="tc" contenteditable="false">2</td><td contenteditable="false">Una tecnica per sessione.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">CC-15</td><td class="tl" contenteditable="false">Shadowboxing 30/30</td><td class="tc"><span class="tag t3">Velocità</span></td><td class="tc" contenteditable="false">8-10 round</td><td class="tc" contenteditable="false">30 sec</td><td class="tc" contenteditable="false">3</td><td contenteditable="false">Max velocità. Confrontare col benchmark.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">K-13</td><td class="tl" contenteditable="false">Mawashi step 3 simultaneo</td><td class="tc"><span class="tag t3">Tecnica</span></td><td class="tc" contenteditable="false">3×15</td><td class="tc" contenteditable="false">60 sec</td><td class="tc" contenteditable="false">3</td><td contenteditable="false">Solo se step 1+2 automatici.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">T-15</td><td class="tl" contenteditable="false">Rimonta con calcio (senshu)</td><td class="tc"><span class="tag t3">Tattica</span></td><td class="tc" contenteditable="false">10 sim.</td><td class="tc" contenteditable="false">60 sec</td><td class="tc" contenteditable="false">2</td><td contenteditable="false">Automatizzare. Calcio = 2-3 punti.</td></tr>
+      <tr class="editable-row"><td contenteditable="false">M-01</td><td class="tl" contenteditable="false">Visualizzazione 3 match</td><td class="tc"><span class="tag t3">Mental</span></td><td class="tc" contenteditable="false">15-20 min</td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">Ogni die</td><td contenteditable="false">Match completi con vittoria.</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══ F4 ═══ -->
+<div id="fase-f4" class="fase-content">
+  <div id="f4-overview" class="sub-content active">
+    <div class="hero">
+      <div class="hero-hdr" style="background:linear-gradient(135deg,#7D6608,#B7950B);">
+        <div>
+          <h2>F4 — COMPETIZIONE</h2>
+          <p>M° Colussi — ASD CSKS Karate Mestre &nbsp;|&nbsp; Mantenere il picco. Tattica specifica.</p>
+        </div>
+      </div>
+      <div class="hero-body">
+        <div class="kpi" style="background:var(--f4l);"><div class="kpi-num" style="color:var(--f4);" contenteditable="false">VAR.</div><div class="kpi-lbl">DURATA</div></div>
+        <div class="kpi" style="background:var(--f4l);"><div class="kpi-num" style="color:var(--f4);" contenteditable="false">3-4</div><div class="kpi-lbl">SESS./SETT.</div></div>
+        <div class="kpi" style="background:var(--f4l);"><div class="kpi-num" style="color:var(--f4);" contenteditable="false">6-7</div><div class="kpi-lbl">RPE TARGET</div></div>
+        <div class="kpi" style="background:var(--f4l);"><div class="kpi-num" style="color:var(--f4);" contenteditable="false">BASSO</div><div class="kpi-lbl">VOLUME FISICO</div></div>
+        <div class="kpi" style="background:var(--f4l);"><div class="kpi-num" style="color:var(--f4);" contenteditable="false">ALTO</div><div class="kpi-lbl">MENTAL+TATTICA</div></div>
+      </div>
+    </div>
+    <div class="al al-y"><strong>Regola F4:</strong> <span contenteditable="false">si compete, non si costruisce. Priorità: recupero, sonno, tattica specifica pre-gara, mental training quotidiano. ZERO forza massimale tra le gare.</span></div>
+    <div class="g2">
+      <div class="card"><div class="card-hdr" style="background:var(--f4);">Mantenimento Picco</div><div class="card-body">
+        <p contenteditable="false"><strong>Attivazione velocità</strong> — 5 serie × 5 sec max velocità tecnica. Solo mantenere SNC attivo.</p>
+        <p contenteditable="false"><strong>Shadowboxing leggero 50-60%</strong> — 15-20 min. Mantenere ritmo tecnico senza fatica.</p>
+        <p contenteditable="false"><strong>ZERO forza massimale</strong> — nessun esercizio con RPE > 7 tra le gare.</p>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f4);">Recupero Post-Gara</div><div class="card-body">
+        <p contenteditable="false"><strong>Giorno 1 post-gara</strong> — solo riposo attivo: camminata 20 min, stretch 20 min.</p>
+        <p contenteditable="false"><strong>Giorno 2</strong> — attivazione leggera: mobilità, shadow 50%. Mental: analisi del match.</p>
+        <p contenteditable="false"><strong>Giorno 3+</strong> — ritmo F4. Sessioni brevi (45-60 min) ad alta qualità tecnica.</p>
+      </div></div>
+    </div>
+  </div>
+  <div id="f4-sessioni" class="sub-content">
+    <div class="sec" style="background:var(--f4);">SESSIONI TIPO — F4</div>
+    <div class="g2" style="margin-top:12px;">
+      <div class="card"><div class="card-hdr" style="background:var(--f4);" contenteditable="false">Sessione Mantenimento · 50 min</div><div class="card-body">
+        <div class="slot"><span class="slot-time" contenteditable="false">0-10'</span><div class="slot-body" contenteditable="false"><strong>Riscaldamento standard</strong><br>Routine identica alla pre-gara. Abitudini fisse.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">10-20'</span><div class="slot-body" contenteditable="false"><strong>Attivazione velocità</strong><br>5 serie × 5 sec max velocità. Rec 30 sec. Solo SNC.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">20-35'</span><div class="slot-body" contenteditable="false"><strong>Tecnica raffinata M° Colussi</strong><br>Solo automatismi. RPE max 7. Qualità assoluta.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">35-45'</span><div class="slot-body" contenteditable="false"><strong>Tattica specifica avversario</strong><br>3 risposte tattiche. 3 simulazioni per risposta.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">45-50'</span><div class="slot-body" contenteditable="false"><strong>Mental + defaticamento</strong><br>Respirazione 4-7-8. Visualizzazione match.</div></div>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f4);" contenteditable="false">Protocollo Giorno Gara</div><div class="card-body">
+        <div class="slot"><span class="slot-time" contenteditable="false">-3h</span><div class="slot-body" contenteditable="false"><strong>Sveglia + idratazione</strong><br>500 ml acqua. Colazione già testata. Niente di nuovo.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">-2h</span><div class="slot-body" contenteditable="false"><strong>Mental training</strong><br>20 min visualizzazione match specifico.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">-45'</span><div class="slot-body" contenteditable="false"><strong>Riscaldamento ufficiale</strong><br>Dinamico 10' + shadow 60-70% × 5 min.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">-15'</span><div class="slot-body" contenteditable="false"><strong>Attivazione SNC</strong><br>5 serie × 5 sec max velocità. Poi focus respiro.</div></div>
+        <div class="slot"><span class="slot-time" contenteditable="false">GARA</span><div class="slot-body" contenteditable="false"><strong>Automatismi M° Colussi</strong><br>3 situazioni tattiche. Il calcio è il punto di svolta.</div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ F5 ═══ -->
+<div id="fase-f5" class="fase-content">
+  <div id="f5-overview" class="sub-content active">
+    <div class="hero">
+      <div class="hero-hdr" style="background:linear-gradient(135deg,#5B2C6F,#7D3C98);">
+        <div>
+          <h2>F5 — TRANSIZIONE</h2>
+          <p>M° Colussi — ASD CSKS Karate Mestre &nbsp;|&nbsp; Recupero attivo e reset mentale completo.</p>
+        </div>
+      </div>
+      <div class="hero-body">
+        <div class="kpi" style="background:var(--f5l);"><div class="kpi-num" style="color:var(--f5);" contenteditable="false">3-4</div><div class="kpi-lbl">SETTIMANE</div></div>
+        <div class="kpi" style="background:var(--f5l);"><div class="kpi-num" style="color:var(--f5);" contenteditable="false">3-4</div><div class="kpi-lbl">SESS./SETT.</div></div>
+        <div class="kpi" style="background:var(--f5l);"><div class="kpi-num" style="color:var(--f5);" contenteditable="false">&lt;5</div><div class="kpi-lbl">RPE MAX</div></div>
+        <div class="kpi" style="background:var(--f5l);"><div class="kpi-num" style="color:var(--f5);" contenteditable="false">NO</div><div class="kpi-lbl">ALTA INTENSITÀ</div></div>
+        <div class="kpi" style="background:var(--f5l);"><div class="kpi-num" style="color:var(--f5);" contenteditable="false">SI</div><div class="kpi-lbl">SPORT ALT.</div></div>
+      </div>
+    </div>
+    <div class="al al-v"><strong>Regola F5:</strong> <span contenteditable="false">non è tempo perso, è investimento. Chi salta F5 arriva a F1 già esaurito. Nessuna intensità alta. Solo movimento piacevole e riflessione sulla stagione.</span></div>
+    <div class="g3">
+      <div class="card"><div class="card-hdr" style="background:var(--f5);">Recupero Attivo</div><div class="card-body">
+        <p contenteditable="false"><strong>Camminata 40-60 min</strong> — FC max 120. Mente libera. Niente cronometro.</p>
+        <p contenteditable="false"><strong>Sport alternativi</strong> — nuoto, ciclismo, yoga, pilates. Per piacere, non per performance.</p>
+        <p contenteditable="false"><strong>Stretching dolce</strong> — mantenere flessibilità senza stress aggiuntivo.</p>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f5);">Reset Mentale</div><div class="card-body">
+        <p contenteditable="false"><strong>Analisi stagione</strong> — 3 punti di forza e 3 aree da migliorare. Condividere con M° Colussi.</p>
+        <p contenteditable="false"><strong>Pianificazione ciclo</strong> — quando inizia F1? Qual è la prossima gara target?</p>
+        <p contenteditable="false"><strong>Stacco mentale</strong> — mental training ridotto a 5 min/die o zero.</p>
+      </div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f5);">Piano Prossimo Ciclo</div><div class="card-body">
+        <p contenteditable="false"><strong>Gara target</strong> — F1 inizia 22-24 settimane prima della gara principale.</p>
+        <p contenteditable="false"><strong>3 priorità tecniche</strong> — cosa è mancato? Quali automatismi ricostruire con M° Colussi?</p>
+        <p contenteditable="false"><strong>Benchmark ingresso F1</strong> — Cooper, salto verticale, altezza mawashi.</p>
+      </div></div>
+    </div>
+  </div>
+  <div id="f5-settimane" class="sub-content">
+    <div class="sec" style="background:var(--f5);">PIANO 4 SETTIMANE — F5</div>
+    <div class="tbl-wrap"><table>
+      <tr>
+        <th style="background:var(--f5);text-align:left;min-width:160px;">PARAMETRO</th>
+        <th style="background:var(--f5);">S1</th><th style="background:var(--f5);">S2</th><th style="background:var(--f5);">S3</th><th style="background:var(--f5);">S4</th>
+      </tr>
+      <tr class="editable-row"><td>Sessioni/sett.</td><td class="tc" contenteditable="false">3</td><td class="tc" contenteditable="false">4</td><td class="tc" contenteditable="false">4</td><td class="tc" contenteditable="false">3</td></tr>
+      <tr class="editable-row"><td>Tipo attività</td><td class="tc" contenteditable="false">Solo riposo attivo</td><td class="tc" contenteditable="false">Riposo + sport alt.</td><td class="tc" contenteditable="false">Sport alt. + mob.</td><td class="tc" contenteditable="false">Pianific. + base</td></tr>
+      <tr class="editable-row"><td>RPE max</td><td class="tc" contenteditable="false">3</td><td class="tc" contenteditable="false">4</td><td class="tc" contenteditable="false">4-5</td><td class="tc" contenteditable="false">5</td></tr>
+      <tr class="editable-row"><td>Mental training</td><td class="tc" contenteditable="false">5 min/die</td><td class="tc" contenteditable="false">5 min/die</td><td class="tc" contenteditable="false">Analisi stagione</td><td class="tc" contenteditable="false">Pianificazione ciclo</td></tr>
+      <tr class="editable-row"><td>Training Load</td><td class="tc tl-v" contenteditable="false">&lt;500</td><td class="tc tl-v" contenteditable="false">600</td><td class="tc tl-v" contenteditable="false">700</td><td class="tc tl-v" contenteditable="false">800</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══ PIANO CARICO ═══ -->
+<div id="fase-carico" class="fase-content">
+  <div id="carico-overview" class="sub-content active">
+    <div class="sec" style="background:var(--grey);margin-top:0;">PIANO CARICO ANNUALE — M° Colussi Stefano · ASD CSKS Karate Mestre</div>
+    <div class="al al-b" style="margin-top:12px;"><strong>Training Load</strong> = RPE × Volume (min). <strong>Regola +10%:</strong> il TL non sale mai di più del 10%/settimana. Settimane di scarico = TL −40%. <span style="color:var(--f1);">Verde &lt;2800 ottimale</span> · <span style="color:var(--f4);">Giallo 2800-3200 alta</span> · <span style="color:var(--f3);">Rosso &gt;3200 attenzione</span></div>
+    <div class="tbl-wrap" style="margin-top:10px;"><table class="pc">
+      <thead>
+        <tr>
+          <th style="background:var(--grey);text-align:left;min-width:150px;">PARAMETRO</th>
+          <th style="background:var(--f1);" colspan="3">F1 — GENERALE</th>
+          <th style="background:#0E6655;">Scarico</th>
+          <th style="background:var(--f2);" colspan="3">F2 — SPECIFICA</th>
+          <th style="background:#0B4C6C;">Scarico</th>
+          <th style="background:var(--f3);" colspan="2">F3</th>
+          <th style="background:var(--f4);" colspan="2">F4</th>
+          <th style="background:var(--f5);" colspan="2">F5</th>
+        </tr>
+        <tr>
+          <th style="background:var(--grey);text-align:left;">Settimana</th>
+          <th style="background:var(--f1);">S1</th><th style="background:var(--f1);">S2</th><th style="background:var(--f1);">S3</th>
+          <th style="background:#0E6655;">S4</th>
+          <th style="background:var(--f2);">S5</th><th style="background:var(--f2);">S6</th><th style="background:var(--f2);">S7</th>
+          <th style="background:#0B4C6C;">S8</th>
+          <th style="background:var(--f3);">S9</th><th style="background:var(--f3);">S10</th>
+          <th style="background:var(--f4);">S11</th><th style="background:var(--f4);">S12 Gara</th>
+          <th style="background:var(--f5);">S13</th><th style="background:var(--f5);">S14</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>FASE</td><td class="tc f1bg">F1</td><td class="tc f1bg">F1</td><td class="tc f1bg">F1</td><td class="tc scarico">F1 Scar.</td><td class="tc f2bg">F2</td><td class="tc f2bg">F2</td><td class="tc f2bg">F2</td><td class="tc scarico">F2 Scar.</td><td class="tc f3bg">F3</td><td class="tc f3bg">F3</td><td class="tc f4bg">F4</td><td class="tc f4bg">F4 Gara</td><td class="tc f5bg">F5</td><td class="tc f5bg">F5</td></tr>
+        <tr class="editable-row"><td><strong>Sessioni/sett.</strong></td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">4</td><td class="tc" contenteditable="false">4</td><td class="tc scarico" contenteditable="false">2</td><td class="tc" contenteditable="false">3</td><td class="tc" contenteditable="false">3</td></tr>
+        <tr class="editable-row"><td><strong>Volume (min)</strong></td><td class="tc" contenteditable="false">300</td><td class="tc" contenteditable="false">320</td><td class="tc" contenteditable="false">350</td><td class="tc scarico" contenteditable="false">280</td><td class="tc" contenteditable="false">380</td><td class="tc" contenteditable="false">400</td><td class="tc" contenteditable="false">420</td><td class="tc scarico" contenteditable="false">310</td><td class="tc" contenteditable="false">350</td><td class="tc" contenteditable="false">300</td><td class="tc" contenteditable="false">220</td><td class="tc scarico" contenteditable="false">120</td><td class="tc" contenteditable="false">180</td><td class="tc" contenteditable="false">200</td></tr>
+        <tr class="editable-row"><td><strong>RPE</strong></td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">7</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">7</td><td class="tc" contenteditable="false">8</td><td class="tc" contenteditable="false">8</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">8</td><td class="tc" contenteditable="false">8</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">3</td><td class="tc" contenteditable="false">4</td></tr>
+        <tr class="editable-row"><td><strong>Training Load</strong></td><td class="tc tl-v" contenteditable="false">1800</td><td class="tc tl-v" contenteditable="false">1920</td><td class="tc tl-y" contenteditable="false">2450</td><td class="tc scarico" contenteditable="false">1400</td><td class="tc tl-y" contenteditable="false">2660</td><td class="tc tl-r" contenteditable="false">3200</td><td class="tc tl-r" contenteditable="false">3360</td><td class="tc scarico" contenteditable="false">1550</td><td class="tc tl-y" contenteditable="false">2800</td><td class="tc tl-y" contenteditable="false">2400</td><td class="tc tl-v" contenteditable="false">1320</td><td class="tc scarico" contenteditable="false">600</td><td class="tc tl-v" contenteditable="false">540</td><td class="tc tl-v" contenteditable="false">800</td></tr>
+        <tr class="editable-row"><td><strong>Forza max (%RM)</strong></td><td class="tc" contenteditable="false">82%</td><td class="tc" contenteditable="false">85%</td><td class="tc" contenteditable="false">87%</td><td class="tc scarico" contenteditable="false">65%</td><td class="tc" contenteditable="false">75%</td><td class="tc" contenteditable="false">75%</td><td class="tc" contenteditable="false">70%</td><td class="tc scarico" contenteditable="false">65%</td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">—</td></tr>
+        <tr class="editable-row"><td><strong>Resist. round</strong></td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">—</td><td class="tc scarico" contenteditable="false">—</td><td class="tc" contenteditable="false">4</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">3</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">4</td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">—</td><td class="tc" contenteditable="false">—</td></tr>
+        <tr class="editable-row"><td><strong>Mental (min/die)</strong></td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">10</td><td class="tc scarico" contenteditable="false">10</td><td class="tc" contenteditable="false">10</td><td class="tc" contenteditable="false">10</td><td class="tc" contenteditable="false">10</td><td class="tc scarico" contenteditable="false">10</td><td class="tc" contenteditable="false">15</td><td class="tc" contenteditable="false">20</td><td class="tc" contenteditable="false">20</td><td class="tc" contenteditable="false">20+</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">—</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+const PHASE_IDS = ['f1','f2','f3','f4','f5','carico'];
+const STORAGE_KEY = 'karate_piano_colussi_v1';
+const NAV_STATE_KEY = 'karate_piano_colussi_nav_v1';
+
+const subNavs = {
+  f1:[{id:'f1-overview',l:'Overview'},{id:'f1-settimane',l:'10 Settimane'},{id:'f1-sessioni',l:'Sessioni Tipo'},{id:'f1-esercizi',l:'Esercizi'}],
+  f2:[{id:'f2-overview',l:'Overview'},{id:'f2-settimane',l:'10 Settimane'},{id:'f2-sessioni',l:'Sessioni Tipo'},{id:'f2-esercizi',l:'Esercizi'}],
+  f3:[{id:'f3-overview',l:'Overview'},{id:'f3-settimane',l:'4-6 Settimane'},{id:'f3-sessioni',l:'Sessioni Tipo'},{id:'f3-esercizi',l:'Esercizi'}],
+  f4:[{id:'f4-overview',l:'Overview'},{id:'f4-sessioni',l:'Sessioni + Gara'}],
+  f5:[{id:'f5-overview',l:'Overview'},{id:'f5-settimane',l:'4 Settimane'}],
+  carico:[{id:'carico-overview',l:'Piano Annuale'}]
+};
+
+let currentFase = 'f1';
+let currentSub = 'f1-overview';
+let editMode = false;
+
+function getPhaseContainer(fId){
+  return document.getElementById(`fase-${fId}`);
+}
+
+function getDefaultSubId(fId){
+  return (subNavs[fId] && subNavs[fId][0] && subNavs[fId][0].id) || null;
+}
+
+function saveNavState(){
+  try {
+    localStorage.setItem(NAV_STATE_KEY, JSON.stringify({ currentFase, currentSub }));
+  } catch (e) {
+    console.warn('Impossibile salvare lo stato di navigazione', e);
+  }
+}
+
+function loadNavState(){
+  try {
+    const raw = localStorage.getItem(NAV_STATE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (saved && saved.currentFase && subNavs[saved.currentFase]) {
+      currentFase = saved.currentFase;
+      currentSub = saved.currentSub || getDefaultSubId(saved.currentFase);
+    }
+  } catch (e) {
+    console.warn('Impossibile caricare lo stato di navigazione', e);
+  }
+}
+
+function updatePhaseButtons(){
+  document.querySelectorAll('.fase-btn').forEach(btn => {
+    const isActive = btn.dataset.f === currentFase;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+}
+
+function showFase(fId){
+  if (!subNavs[fId]) return;
+  currentFase = fId;
+  document.querySelectorAll('.fase-content').forEach(el => {
+    el.classList.toggle('active', el.id === `fase-${fId}`);
+  });
+  updatePhaseButtons();
+  buildSubNav(fId, currentSub && currentSub.startsWith(fId + '-') ? currentSub : getDefaultSubId(fId));
+  saveNavState();
+}
+
+function buildSubNav(fId, subIdToActivate){
+  const nav = document.getElementById('sub-nav');
+  nav.innerHTML = '';
+  const items = subNavs[fId] || [];
+
+  items.forEach(item => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'sub-btn';
+    b.textContent = item.l;
+    b.dataset.sub = item.id;
+    b.onclick = () => showSub(item.id);
+    nav.appendChild(b);
+  });
+
+  const targetSubId = items.some(item => item.id === subIdToActivate)
+    ? subIdToActivate
+    : getDefaultSubId(fId);
+
+  showSub(targetSubId);
+}
+
+function showSub(subId){
+  currentSub = subId;
+  document.querySelectorAll('.sub-content').forEach(el => {
+    el.classList.toggle('active', el.id === subId);
+  });
+  document.querySelectorAll('.sub-btn').forEach(btn => {
+    const isActive = btn.dataset.sub === subId;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+  saveNavState();
+}
+
+function getEditableNodes(){
+  return Array.from(document.querySelectorAll('[contenteditable]'));
+}
+
+function assignEditableIds(){
+  getEditableNodes().forEach((el, index) => {
+    if (!el.dataset.editId) {
+      el.dataset.editId = `edit-${index}`;
+    }
+  });
+}
+
+function toggleEdit(forceState = null){
+  editMode = forceState === null ? !editMode : !!forceState;
+  const btn = document.getElementById('edit-btn');
+  const hint = document.getElementById('edit-hint');
+  const saveBtn = document.getElementById('save-btn');
+
+  getEditableNodes().forEach(el => {
+    el.contentEditable = editMode ? 'true' : 'false';
+    if (!editMode) el.blur();
+  });
+
+  document.body.classList.toggle('edit-mode', editMode);
+  btn.classList.toggle('active', editMode);
+  btn.textContent = editMode ? 'Modifica ON' : 'Modifica';
+  hint.style.display = editMode ? 'inline' : 'none';
+  saveBtn.style.display = editMode ? 'inline-flex' : 'none';
+}
+
+function collectEditableContent(){
+  const payload = {};
+  getEditableNodes().forEach(el => {
+    payload[el.dataset.editId] = el.innerHTML;
+  });
+  return payload;
+}
+
+function applyEditableContent(payload){
+  if (!payload) return;
+  getEditableNodes().forEach(el => {
+    const key = el.dataset.editId;
+    if (Object.prototype.hasOwnProperty.call(payload, key)) {
+      el.innerHTML = payload[key];
+    }
+  });
+}
+
+function saveChanges(){
+  const btn = document.getElementById('save-btn');
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectEditableContent()));
+    btn.textContent = 'Salvato';
+    btn.style.background = '#145A32';
+  } catch (e) {
+    console.warn('Salvataggio non riuscito', e);
+    btn.textContent = 'Errore salvataggio';
+    btn.style.background = '#922B21';
+  }
+  setTimeout(() => {
+    btn.textContent = 'Salva';
+    btn.style.background = '#27AE60';
+  }, 2000);
+}
+
+function loadSavedChanges(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    applyEditableContent(JSON.parse(raw));
+  } catch (e) {
+    console.warn('Impossibile caricare le modifiche salvate', e);
+  }
+}
+
+function resetSavedChanges(){
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(NAV_STATE_KEY);
+  } catch (e) {
+    console.warn('Impossibile resettare i dati locali', e);
+  }
+  window.location.reload();
+}
+
+function preparePrintSelection(mode = 'active', selected = []){
+  PHASE_IDS.forEach(fId => {
+    const phase = getPhaseContainer(fId);
+    if (!phase) return;
+
+    const shouldShow = mode === 'all'
+      ? true
+      : mode === 'selected'
+        ? selected.includes(fId)
+        : fId === currentFase;
+
+    phase.classList.toggle('no-print', !shouldShow);
+    phase.querySelectorAll('.sub-content').forEach(sub => {
+      if (shouldShow) {
+        sub.classList.add('active');
+      } else {
+        sub.classList.remove('active');
+      }
+    });
+  });
+}
+
+function restoreView(){
+  PHASE_IDS.forEach(fId => {
+    const phase = getPhaseContainer(fId);
+    if (!phase) return;
+    phase.classList.remove('no-print');
+  });
+  showFase(currentFase);
+}
+
+function printActive(){
+  preparePrintSelection('active');
+  setTimeout(() => { window.print(); restoreView(); }, 120);
+}
+
+function printAll(){
+  preparePrintSelection('all');
+  setTimeout(() => { window.print(); restoreView(); }, 120);
+}
+
+function openPdfModal(){
+  document.getElementById('pdf-modal').classList.add('open');
+}
+
+function closePdfModal(){
+  document.getElementById('pdf-modal').classList.remove('open');
+}
+
+function printSelected(){
+  const selected = Array.from(document.querySelectorAll('#phase-checks input:checked')).map(c => c.value);
+  if (!selected.length) {
+    alert('Seleziona almeno una fase da stampare.');
+    return;
+  }
+  preparePrintSelection('selected', selected);
+  closePdfModal();
+  setTimeout(() => { window.print(); restoreView(); }, 120);
+}
+
+function bindGlobalEvents(){
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closePdfModal();
+      if (editMode) toggleEdit(false);
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+      event.preventDefault();
+      saveChanges();
+    }
+  });
+
+  document.getElementById('pdf-modal').addEventListener('click', (event) => {
+    if (event.target.id === 'pdf-modal') closePdfModal();
+  });
+
+  window.addEventListener('beforeprint', () => {
+    document.body.classList.remove('edit-mode');
+  });
+}
+
+function initApp(){
+  assignEditableIds();
+  loadSavedChanges();
+  loadNavState();
+  bindGlobalEvents();
+  toggleEdit(false);
+  showFase(currentFase);
+}
+
+window.showFase = showFase;
+window.toggleEdit = toggleEdit;
+window.saveChanges = saveChanges;
+window.printActive = printActive;
+window.printAll = printAll;
+window.openPdfModal = openPdfModal;
+window.closePdfModal = closePdfModal;
+window.printSelected = printSelected;
+window.resetSavedChanges = resetSavedChanges;
+
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>
