@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano Karate ELITE — M° Colussi · ASD CSKS Karate Mestre</title>
+<style>
+:root{
+  --f1:#1A7A3A;--f1l:#D5F5E3;--f2:#1A5276;--f2l:#AED6F1;
+  --f3:#7B0000;--f3l:#FADBD8;--f4:#7D6608;--f4l:#FCF3CF;
+  --f5:#5B2C6F;--f5l:#E8DAEF;--grey:#2C3E50;--greyl:#ECF0F1;
+  --ok:#27AE60;--warn:#F39C12;--danger:#E74C3C;--teal:#16A085;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#F0F2F5;color:#1A1A1A;font-size:13px;}
+header{background:linear-gradient(135deg,#1A1A2E,#0F3460);color:white;padding:14px 20px;}
+header h1{font-size:17px;font-weight:800;}
+header p{font-size:11px;opacity:.8;margin-top:3px;}
+#toolbar{background:#1A1A2E;padding:8px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+#toolbar span{color:rgba(255,255,255,.4);font-size:10px;font-weight:700;white-space:nowrap;}
+.tbtn{border:none;cursor:pointer;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:700;white-space:nowrap;}
+.tbtn-edit{background:var(--warn);color:white;}.tbtn-edit.on{background:#E67E22;}
+.tbtn-save{background:var(--ok);color:white;display:none;}
+.tbtn-gen{background:#8E44AD;color:white;}
+.tbtn-red{background:var(--danger);color:white;}
+.tbtn-blue{background:var(--f2);color:white;}
+.tbtn-grey{background:#555;color:white;}
+.tbtn-teal{background:var(--teal);color:white;}
+.tbtn-reset{background:#7F8C8D;color:white;}
+.edit-hint{color:var(--warn);font-size:10px;font-weight:700;display:none;}
+.main-nav{background:#263547;display:flex;overflow-x:auto;}
+.nav-btn{border:none;cursor:pointer;padding:10px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,.45);background:transparent;white-space:nowrap;border-bottom:3px solid transparent;}
+.nav-btn.active{color:white;border-bottom-color:var(--warn);}
+.fase-nav{display:flex;background:#1A1A2E;overflow-x:auto;}
+.fase-btn{flex:1;min-width:65px;border:none;cursor:pointer;padding:11px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,.4);border-bottom:3px solid transparent;background:transparent;line-height:1.4;}
+.fase-btn[data-f="f1"].active{border-bottom-color:var(--f1);color:#A9DFBF;}
+.fase-btn[data-f="f2"].active{border-bottom-color:#85C1E9;color:#85C1E9;}
+.fase-btn[data-f="f3"].active{border-bottom-color:#F1948A;color:#F1948A;}
+.fase-btn[data-f="f4"].active{border-bottom-color:#F9E79F;color:#F9E79F;}
+.fase-btn[data-f="f5"].active{border-bottom-color:#C39BD3;color:#C39BD3;}
+main{max-width:1300px;margin:0 auto;padding:14px 14px 60px;}
+.page{display:none;}.page.active{display:block;}
+.fase-panel{display:none;}.fase-panel.active{display:block;}
+.sec{padding:8px 13px;border-radius:6px 6px 0 0;font-weight:700;font-size:12px;color:white;margin-top:14px;}
+.card{background:white;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.07);overflow:hidden;margin-bottom:12px;}
+.card-hdr{padding:8px 13px;font-weight:700;font-size:11px;color:white;}
+.card-body{padding:12px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin:10px 0;}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin:10px 0;}
+.kpi{background:white;border-radius:8px;padding:9px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.kpi-num{font-size:19px;font-weight:800;}
+.kpi-lbl{font-size:9px;font-weight:700;color:#888;margin-top:2px;}
+.al{padding:9px 12px;border-radius:6px;font-size:11px;margin:6px 0;line-height:1.5;}
+.al-g{background:var(--f1l);border-left:4px solid var(--f1);color:#145A32;}
+.al-b{background:var(--f2l);border-left:4px solid var(--f2);color:#1A5276;}
+.al-r{background:var(--f3l);border-left:4px solid var(--f3);color:#7B0000;}
+.al-y{background:var(--f4l);border-left:4px solid #F1C40F;color:var(--f4);}
+.tbl-wrap{overflow-x:auto;border-radius:0 0 6px 6px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:12px;}
+table{width:100%;border-collapse:collapse;background:white;font-size:11px;}
+th{padding:6px 8px;text-align:center;font-weight:700;font-size:10px;color:white;}
+td{padding:5px 8px;border-bottom:1px solid #EEE;vertical-align:middle;}
+tr:nth-child(even) td{background:#FAFAFA;}
+.er:hover td{background:#FFFDE7;}
+.tl{text-align:left;}.tc{text-align:center;}
+.scarico{background:#D6EAF8!important;color:#1A5276!important;font-weight:700!important;}
+.tl-v{background:#C8E6C9!important;color:#1A7A3A!important;font-weight:700;}
+.tl-y{background:#FFF9C4!important;color:#7D6608!important;font-weight:700;}
+.tl-r{background:#FFCDD2!important;color:#7B0000!important;font-weight:700;}
+.f1bg{background:var(--f1l)!important;color:var(--f1)!important;font-weight:700;}
+.f2bg{background:var(--f2l)!important;color:var(--f2)!important;font-weight:700;}
+.f3bg{background:var(--f3l)!important;color:var(--f3)!important;font-weight:700;}
+.f4bg{background:var(--f4l)!important;color:var(--f4)!important;font-weight:700;}
+.f5bg{background:var(--f5l)!important;color:var(--f5)!important;font-weight:700;}
+.pc td:first-child{font-weight:700;background:#EBF5FB;color:var(--f2);min-width:130px;}
+.fi{border:1.5px solid #DDD;border-radius:4px;padding:5px 9px;font-size:12px;width:100%;font-family:inherit;background:white;}
+.fi:focus{outline:none;border-color:var(--f2);}
+select.fi{cursor:pointer;}
+textarea.fi{resize:vertical;min-height:55px;}
+.field-row{display:grid;grid-template-columns:130px 1fr;gap:8px;align-items:center;margin-bottom:7px;}
+.field-label{font-weight:700;font-size:11px;color:var(--grey);}
+.gen-box{background:white;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.09);padding:16px;margin-bottom:14px;}
+.gen-box h3{font-size:13px;font-weight:800;color:var(--grey);margin-bottom:12px;border-bottom:2px solid var(--greyl);padding-bottom:8px;}
+.gen-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+.gen-ctrl label{font-size:10px;font-weight:700;color:#888;display:block;margin-bottom:4px;}
+.gen-day{background:#FAFAFA;border-radius:6px;border-left:4px solid var(--f2);padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.gen-day h4{font-size:12px;font-weight:800;color:var(--grey);margin-bottom:6px;}
+.gen-day ul{padding-left:16px;font-size:11px;color:#444;line-height:1.9;}
+.rpe-badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;background:var(--f2l);color:var(--f2);margin-left:6px;}
+.blocco-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0;}
+.blocco-btn{border:1.5px solid #DDD;background:white;border-radius:6px;padding:8px 10px;cursor:pointer;font-size:11px;font-weight:700;text-align:left;}
+.blocco-btn.sel{background:var(--f2l);border-color:var(--f2);color:var(--f2);}
+.es-card{background:white;border-radius:5px;border-left:3px solid #333;padding:8px 10px;margin-bottom:6px;font-size:11px;box-shadow:0 1px 3px rgba(0,0,0,.05);display:flex;gap:8px;align-items:flex-start;}
+.es-card-check{width:18px;height:18px;flex-shrink:0;cursor:pointer;margin-top:1px;accent-color:var(--f2);}
+.es-card-body{flex:1;}
+.es-card-body .det{color:#666;margin-top:2px;}
+.es-sel-bar{background:var(--f2l);border:1px solid var(--f2);border-radius:6px;padding:10px 12px;margin-top:10px;display:none;}
+.es-sel-bar.visible{display:block;}
+.es-sel-count{font-weight:700;color:var(--f2);font-size:12px;margin-bottom:6px;}
+.es-sel-list{font-size:11px;color:#444;margin-bottom:8px;line-height:1.7;}
+.sto-item{background:white;border-radius:8px;border-left:4px solid var(--f2);margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;}
+.sto-hdr-row{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer;user-select:none;}
+.sto-hdr-row:hover{background:#F8F9FF;}
+.sto-hdr-left{font-weight:800;font-size:12px;color:var(--grey);}
+.sto-preview{font-size:10px;color:#888;margin-top:3px;}
+.sto-hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.sto-del{border:none;background:var(--danger);color:white;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:10px;font-weight:700;}
+.sto-arrow{font-size:13px;color:#AAA;display:inline-block;transition:transform .2s;}
+.sto-arrow.open{transform:rotate(90deg);}
+.sto-body{display:none;border-top:1px solid #EEE;padding:14px;}
+.sto-body.open{display:block;}
+.sto-days{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;}
+.sto-day-card{background:#F8F9FA;border-radius:5px;padding:10px 12px;border-top:2px solid var(--f2);}
+.sto-day-title{font-weight:700;font-size:11px;color:var(--grey);margin-bottom:5px;}
+.sto-day-es{font-size:11px;color:#444;line-height:1.8;}
+.src-badge{display:inline-block;padding:0 4px;border-radius:3px;font-size:8px;font-weight:700;margin-left:2px;vertical-align:middle;}
+#pm,#sto-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;align-items:center;justify-content:center;}
+#pm.open,#sto-modal.open{display:flex;}
+#sto-modal{align-items:flex-start;overflow-y:auto;padding:20px;}
+.pm-box{background:white;border-radius:10px;padding:22px;max-width:360px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,.25);}
+.pm-box h3{font-size:14px;font-weight:800;margin-bottom:4px;}
+.pm-box p{font-size:11px;color:#666;margin-bottom:12px;}
+.pm-opt{border:none;cursor:pointer;padding:9px 13px;border-radius:6px;font-size:11px;font-weight:700;text-align:left;width:100%;margin-bottom:6px;}
+.pm-close{width:100%;border:1.5px solid #DDD;background:white;padding:6px;border-radius:5px;cursor:pointer;font-size:11px;color:#666;margin-top:2px;}
+.sto-modal-box{background:white;border-radius:10px;padding:24px;max-width:900px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.25);margin:auto;}
+.sto-modal-box h2{font-size:16px;font-weight:800;margin-bottom:4px;}
+.sto-modal-sub{font-size:11px;color:#888;margin-bottom:16px;}
+.sto-modal-close{border:none;background:#EEE;border-radius:5px;padding:6px 14px;cursor:pointer;font-size:12px;font-weight:700;}
+.diario-week{border:1px solid #E0E0E0;border-radius:8px;background:white;margin-bottom:8px;overflow:hidden;}
+.dw-hdr{padding:9px 13px;font-weight:700;font-size:11px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;}
+.dw-hdr:hover{background:#F8F8F8;}
+.dw-body{padding:12px;border-top:1px solid #EEE;display:none;}
+.dw-body.open{display:block;}
+.note-input{border:1.5px solid #DDD;border-radius:4px;padding:3px 7px;font-size:11px;width:100%;font-family:inherit;}
+.rpe-val{border:1.5px solid #DDD;border-radius:4px;text-align:center;font-size:11px;font-weight:700;padding:2px 0;width:48px;}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cal-nav h3{font-size:13px;font-weight:700;}
+.cal-nav button{border:1.5px solid #DDD;background:white;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:12px;font-weight:700;}
+.cal-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;}
+.cal-hdr-d{text-align:center;font-size:9px;font-weight:700;color:#888;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-day{min-height:48px;border-radius:5px;border:1px solid #E8E8E8;background:white;padding:3px 4px;}
+.cal-day.has-gara{border-color:var(--f3);background:var(--f3l);}
+.cal-day.today{border-color:var(--f2);border-width:2px;}
+.cal-day-num{font-weight:700;font-size:10px;color:var(--grey);}
+.cal-fase-bar{height:3px;border-radius:2px;margin-top:2px;}
+.cal-gara-lbl{font-size:8px;font-weight:700;color:var(--f3);margin-top:2px;line-height:1.2;}
+.gara-item{display:flex;align-items:center;justify-content:space-between;padding:7px 11px;border-radius:6px;margin-bottom:5px;border:1px solid var(--f3l);background:var(--f3l);}
+.gara-del{border:none;background:var(--f3);color:white;border-radius:4px;padding:2px 7px;cursor:pointer;font-size:10px;font-weight:700;}
+.bench-card{background:white;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.07);overflow:hidden;margin-bottom:10px;}
+.bench-hdr{padding:8px 13px;font-weight:700;font-size:11px;color:white;display:flex;justify-content:space-between;align-items:center;}
+.bench-body{padding:12px;}
+.prog-bar{height:5px;border-radius:3px;background:#EEE;overflow:hidden;margin:4px 0 8px;}
+.prog-fill{height:100%;border-radius:3px;}
+.badge-ok{background:var(--f1l);color:var(--f1);padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
+.badge-warn{background:var(--f4l);color:var(--f4);padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
+.badge-bad{background:var(--f3l);color:var(--f3);padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
+body.edit [contenteditable]{outline:2px dashed var(--warn)!important;background:rgba(243,156,18,.07)!important;border-radius:3px;cursor:text;}
+@media print{
+  #toolbar,.main-nav,.fase-nav{display:none!important;}
+  body{background:white;}main{padding:0;max-width:100%;}
+  .page,.fase-panel{display:block!important;}.page.no-print{display:none!important;}
+  .tbl-wrap{overflow:visible;box-shadow:none;}
+  th,.card-hdr,.sec,.f1bg,.f2bg,.f3bg,.f4bg,.f5bg,.scarico,.tl-v,.tl-y,.tl-r{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+@media(max-width:768px){.g2,.g3,.kpi-row,.gen-controls,.blocco-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<header>
+  <h1>PIANO DI ALLENAMENTO KARATE — TUTTE LE FASI</h1>
+  <p>M° Colussi Stefano — ASD CSKS Karate Mestre &nbsp;·&nbsp; Periodizzazione annuale completa</p>
+</header>
+<div id="toolbar">
+  <span>STRUMENTI:</span>
+  <button class="tbtn tbtn-edit" id="edit-btn">Modifica</button>
+  <span id="edit-hint" class="edit-hint">Clicca su qualsiasi testo per modificarlo</span>
+  <button class="tbtn tbtn-save" id="save-btn">Salva</button>
+  <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;">
+    <span>STAMPA:</span>
+    <button class="tbtn tbtn-red" id="btn-print-cur">Fase Attiva</button>
+    <button class="tbtn tbtn-blue" id="btn-print-sel">Seleziona Fasi</button>
+    <button class="tbtn tbtn-grey" id="btn-print-all">Tutto</button>
+  </div>
+</div>
+<div class="main-nav">
+  <button class="nav-btn active" data-page="piano">Piano Fasi</button>
+  <button class="nav-btn" data-page="gen">Genera Settimana</button>
+  <button class="nav-btn" data-page="atleta">Scheda Atleta</button>
+  <button class="nav-btn" data-page="diario">Diario</button>
+  <button class="nav-btn" data-page="calendario">Calendario Gare</button>
+  <button class="nav-btn" data-page="benchmark">Benchmark</button>
+  <button class="nav-btn" data-page="carico">Piano Carico</button>
+</div>
+<div class="fase-nav" id="fase-nav">
+  <button class="fase-btn active" data-f="f1">F1<br><span style="font-size:9px;font-weight:400;">Generale</span></button>
+  <button class="fase-btn" data-f="f2">F2<br><span style="font-size:9px;font-weight:400;">Specifica</span></button>
+  <button class="fase-btn" data-f="f3">F3<br><span style="font-size:9px;font-weight:400;">Pre-Gara</span></button>
+  <button class="fase-btn" data-f="f4">F4<br><span style="font-size:9px;font-weight:400;">Competizione</span></button>
+  <button class="fase-btn" data-f="f5">F5<br><span style="font-size:9px;font-weight:400;">Transizione</span></button>
+  <button class="fase-btn" data-f="carico-tab" style="border-left:1px solid rgba(255,255,255,.1);">Piano<br><span style="font-size:9px;font-weight:400;">Carico</span></button>
+</div>
+<!-- PRINT MODAL -->
+<div id="pm">
+  <div class="pm-box">
+    <h3>Seleziona sezioni da stampare</h3>
+    <p>Scegli cosa includere nel PDF.</p>
+    <div id="pm-checks" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;"><input type="checkbox" value="piano" checked> Piano Fasi</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;"><input type="checkbox" value="gen" checked> Generatore</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;"><input type="checkbox" value="atleta" checked> Scheda Atleta</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;"><input type="checkbox" value="diario" checked> Diario</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;"><input type="checkbox" value="calendario" checked> Calendario</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;"><input type="checkbox" value="benchmark" checked> Benchmark</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;"><input type="checkbox" value="carico" checked> Piano Carico</label>
+    </div>
+    <button class="pm-opt" id="btn-pm-print" style="background:#8E44AD;color:white;">Stampa / Salva PDF</button>
+    <button class="pm-close" id="btn-pm-close">Annulla</button>
+  </div>
+</div>
+<!-- STORICO MODAL -->
+<div id="sto-modal">
+  <div class="sto-modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:10px;flex-wrap:wrap;">
+      <h2 id="sto-modal-title"></h2>
+      <div style="display:flex;gap:8px;">
+        <button class="tbtn tbtn-red" id="btn-sto-print">Stampa programma</button>
+        <button class="sto-modal-close" id="btn-sto-close">✕ Chiudi</button>
+      </div>
+    </div>
+    <div class="sto-modal-sub" id="sto-modal-sub"></div>
+    <div id="sto-modal-body"></div>
+  </div>
+</div>
+<main>
+<!-- PIANO FASI -->
+<div id="page-piano" class="page active">
+  <div id="fp-f1" class="fase-panel active">
+    <div class="kpi-row">
+      <div class="kpi" style="border-top:3px solid var(--f1);"><div class="kpi-num" style="color:var(--f1);" contenteditable="false">8-10</div><div class="kpi-lbl">SETTIMANE</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f1);"><div class="kpi-num" style="color:var(--f1);" contenteditable="false">5-6</div><div class="kpi-lbl">SESS./SETT.</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f1);"><div class="kpi-num" style="color:var(--f1);" contenteditable="false">6-7</div><div class="kpi-lbl">RPE TARGET</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f1);"><div class="kpi-num" style="color:var(--f1);" contenteditable="false">85%</div><div class="kpi-lbl">MAX RM</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f1);"><div class="kpi-num" style="color:var(--f1);" contenteditable="false">S4</div><div class="kpi-lbl">SCARICO</div></div>
+    </div>
+    <div class="al al-g"><strong>Obiettivo F1 M° Colussi:</strong> costruire forza massimale, base aerobica solida, automatizzare la tecnica in closed skill. NON si va forte, si va GIUSTO.</div>
+    <div class="g3">
+      <div class="card"><div class="card-hdr" style="background:var(--f1);">Forza Massimale</div><div class="card-body"><p style="font-size:11px;color:#444;line-height:1.7;" contenteditable="false"><strong>Squat bilanciere</strong> — 4×4 @ 85% RM. Concentrica esplosiva, eccentrica 3 sec.<br><strong>Stacco da terra</strong> — 4×5 @ 80% RM. Schiena neutra obbligatoria.<br><strong>Push up / Panca</strong> — 3×8 @ 75% RM.</p></div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f1);">Base Aerobica</div><div class="card-body"><p style="font-size:11px;color:#444;line-height:1.7;" contenteditable="false"><strong>Corsa continua 30-40 min</strong> — FC 130-150.<br><strong>Fartlek tecnico</strong> — 20 min: 2 min corsa + 1 min shadow 60%.<br><strong>Cooper 12 min</strong> — eseguire S1 e fine F1.</p></div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f1);">Tecnica M° Colussi</div><div class="card-body"><p style="font-size:11px;color:#444;line-height:1.7;" contenteditable="false"><strong>Gyaku tsuki specchio</strong> — 3×60 rep (20+20+20).<br><strong>Kizami tsuki 4 varianti</strong> — 3×15/variante.<br><strong>Mawashi step 1+2</strong> — 10 min/step.</p></div></div>
+    </div>
+    <div class="sec" style="background:var(--f1);">Piano 10 Settimane — F1</div>
+    <div class="tbl-wrap"><table>
+      <tr><th style="background:var(--f1);text-align:left;">Parametro</th><th style="background:var(--f1);">S1</th><th style="background:var(--f1);">S2</th><th style="background:var(--f1);">S3</th><th style="background:#0E6655;">S4 Scarico</th><th style="background:var(--f1);">S5</th><th style="background:var(--f1);">S6</th><th style="background:var(--f1);">S7</th><th style="background:#0E6655;">S8 Scarico</th><th style="background:var(--f1);">S9</th><th style="background:var(--f1);">S10</th></tr>
+      <tr class="er"><td>Sessioni/sett.</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td></tr>
+      <tr class="er"><td>Volume (min)</td><td class="tc" contenteditable="false">300</td><td class="tc" contenteditable="false">320</td><td class="tc" contenteditable="false">350</td><td class="tc scarico" contenteditable="false">280</td><td class="tc" contenteditable="false">360</td><td class="tc" contenteditable="false">370</td><td class="tc" contenteditable="false">385</td><td class="tc scarico" contenteditable="false">300</td><td class="tc" contenteditable="false">390</td><td class="tc" contenteditable="false">400</td></tr>
+      <tr class="er"><td>RPE target</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">7</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">7</td><td class="tc" contenteditable="false">7</td><td class="tc" contenteditable="false">7</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">7</td><td class="tc" contenteditable="false">7</td></tr>
+      <tr class="er"><td>Training Load</td><td class="tc tl-v" contenteditable="false">1800</td><td class="tc tl-v" contenteditable="false">1920</td><td class="tc tl-y" contenteditable="false">2450</td><td class="tc scarico" contenteditable="false">1400</td><td class="tc tl-v" contenteditable="false">2520</td><td class="tc tl-v" contenteditable="false">2590</td><td class="tc tl-y" contenteditable="false">2695</td><td class="tc scarico" contenteditable="false">1500</td><td class="tc tl-y" contenteditable="false">2730</td><td class="tc tl-y" contenteditable="false">2800</td></tr>
+    </table></div>
+  </div>
+  <div id="fp-f2" class="fase-panel">
+    <div class="kpi-row">
+      <div class="kpi" style="border-top:3px solid var(--f2);"><div class="kpi-num" style="color:var(--f2);" contenteditable="false">8-10</div><div class="kpi-lbl">SETTIMANE</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f2);"><div class="kpi-num" style="color:var(--f2);" contenteditable="false">6</div><div class="kpi-lbl">SESS./SETT.</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f2);"><div class="kpi-num" style="color:var(--f2);" contenteditable="false">7-8</div><div class="kpi-lbl">RPE TARGET</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f2);"><div class="kpi-num" style="color:var(--f2);" contenteditable="false">4-6</div><div class="kpi-lbl">ROUND BUILD-UP</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f2);"><div class="kpi-num" style="color:var(--f2);" contenteditable="false">S4/S8</div><div class="kpi-lbl">SCARICO OBBL.</div></div>
+    </div>
+    <div class="al al-b"><strong>Obiettivo F2:</strong> la forza diventa esplosività, la tecnica diventa reazione. Build-up 4 a 6 round HIIT.</div>
+    <div class="g3">
+      <div class="card"><div class="card-hdr" style="background:var(--f2);">Forza Esplosiva</div><div class="card-body"><p style="font-size:11px;color:#444;line-height:1.7;" contenteditable="false"><strong>Box Jump con tecnica</strong> — 4×6.<br><strong>Bound laterale pliometrico</strong> — 5×6.<br><strong>Flessioni clap</strong> — 3×8.</p></div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f2);">Resistenza Specifica</div><div class="card-body"><p style="font-size:11px;color:#444;line-height:1.7;" contenteditable="false"><strong>Interval 3 min / 1 min off</strong> — 4 a 6 round.<br><strong>Piramide 1-2-3-2-1 min</strong> — 9 min totali.<br><strong>Circuit 6 stazioni</strong> — 2-3 giri.</p></div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f2);">Velocità e Reazione</div><div class="card-body"><p style="font-size:11px;color:#444;line-height:1.7;" contenteditable="false"><strong>Reazione stimolo tattile</strong> — 3×10.<br><strong>Reazione al colore (4 tecniche)</strong> — 3×20.<br><strong>10 tsuki al pao</strong> — target meno di 4 sec.</p></div></div>
+    </div>
+  </div>
+  <div id="fp-f3" class="fase-panel">
+    <div class="kpi-row">
+      <div class="kpi" style="border-top:3px solid var(--f3);"><div class="kpi-num" style="color:var(--f3);" contenteditable="false">4-6</div><div class="kpi-lbl">SETTIMANE</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f3);"><div class="kpi-num" style="color:var(--f3);" contenteditable="false">5</div><div class="kpi-lbl">SESS./SETT.</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f3);"><div class="kpi-num" style="color:var(--f3);" contenteditable="false">8</div><div class="kpi-lbl">RPE TARGET</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f3);"><div class="kpi-num" style="color:var(--f3);" contenteditable="false">6</div><div class="kpi-lbl">ROUND HIIT</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f3);"><div class="kpi-num" style="color:var(--f3);" contenteditable="false">NO</div><div class="kpi-lbl">FORZA MAX</div></div>
+    </div>
+    <div class="al al-r"><strong>Regola F3:</strong> in F3 non si costruisce, si AFFINA. Volume -30%, intensità al picco. Solo automatismi M° Colussi già acquisiti.</div>
+    <div class="g3">
+      <div class="card"><div class="card-hdr" style="background:var(--f3);">Resistenza al Picco</div><div class="card-body"><p style="font-size:11px;color:#444;line-height:1.7;" contenteditable="false"><strong>HIIT kumite 6×3 min</strong> — rec 60 a 30 sec.<br><strong>Tabata tecnico 20/10×8</strong> — una sola tecnica.</p></div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f3);">Velocità al Picco</div><div class="card-body"><p style="font-size:11px;color:#444;line-height:1.7;" contenteditable="false"><strong>Shadowboxing 30/30 × 10 round</strong> — max velocità.<br><strong>10 tsuki al pao</strong> — target meno di 4 sec.</p></div></div>
+      <div class="card"><div class="card-hdr" style="background:var(--f3);">Tecnica e Tattica</div><div class="card-body"><p style="font-size:11px;color:#444;line-height:1.7;" contenteditable="false"><strong>Mawashi step 3</strong> — solo se step 1+2 automatici.<br><strong>3 situazioni tattiche</strong> — vantaggio, rimonta, 30 sec.</p></div></div>
+    </div>
+  </div>
+  <div id="fp-f4" class="fase-panel">
+    <div class="kpi-row">
+      <div class="kpi" style="border-top:3px solid var(--f4);"><div class="kpi-num" style="color:var(--f4);" contenteditable="false">VAR.</div><div class="kpi-lbl">DURATA</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f4);"><div class="kpi-num" style="color:var(--f4);" contenteditable="false">3-4</div><div class="kpi-lbl">SESS./SETT.</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f4);"><div class="kpi-num" style="color:var(--f4);" contenteditable="false">6-7</div><div class="kpi-lbl">RPE TARGET</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f4);"><div class="kpi-num" style="color:var(--f4);" contenteditable="false">BASSO</div><div class="kpi-lbl">VOLUME</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f4);"><div class="kpi-num" style="color:var(--f4);" contenteditable="false">ALTO</div><div class="kpi-lbl">MENTAL</div></div>
+    </div>
+    <div class="al al-y"><strong>Regola F4:</strong> si compete, non si costruisce. ZERO forza massimale tra le gare. Priorità: recupero, sonno 8h, tattica specifica.</div>
+  </div>
+  <div id="fp-f5" class="fase-panel">
+    <div class="kpi-row">
+      <div class="kpi" style="border-top:3px solid var(--f5);"><div class="kpi-num" style="color:var(--f5);" contenteditable="false">3-4</div><div class="kpi-lbl">SETTIMANE</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f5);"><div class="kpi-num" style="color:var(--f5);" contenteditable="false">3-4</div><div class="kpi-lbl">SESS./SETT.</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f5);"><div class="kpi-num" style="color:var(--f5);" contenteditable="false">5</div><div class="kpi-lbl">RPE MAX</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f5);"><div class="kpi-num" style="color:var(--f5);" contenteditable="false">NO</div><div class="kpi-lbl">ALTA INT.</div></div>
+      <div class="kpi" style="border-top:3px solid var(--f5);"><div class="kpi-num" style="color:var(--f5);" contenteditable="false">SI</div><div class="kpi-lbl">SPORT ALT.</div></div>
+    </div>
+    <div class="al" style="background:var(--f5l);border-left:4px solid var(--f5);color:var(--f5);"><strong>Regola F5:</strong> non è tempo perso, è investimento. Solo movimento piacevole e analisi stagione con M° Colussi.</div>
+  </div>
+</div>
+<!-- GENERA SETTIMANA -->
+<div id="page-gen" class="page">
+  <div class="gen-box">
+    <h3>GENERATORE ELITE TOTALE — M° Colussi · ASD CSKS Karate Mestre</h3>
+    <div class="gen-controls">
+      <div class="gen-ctrl"><label>Obiettivo principale</label>
+        <select class="fi" id="gen-obiettivo">
+          <option value="generale">Generale</option><option value="velocita">Velocità</option>
+          <option value="esplosivita">Esplosività</option><option value="tecnica">Tecnica</option>
+          <option value="tattica">Tattica</option><option value="resistenza">Resistenza</option>
+        </select>
+      </div>
+      <div class="gen-ctrl"><label>Sessioni a settimana</label>
+        <select class="fi" id="gen-sessioni">
+          <option value="3">3 sessioni</option><option value="4">4 sessioni</option>
+          <option value="5" selected>5 sessioni</option><option value="6">6 sessioni</option>
+        </select>
+      </div>
+      <div class="gen-ctrl"><label>Livello di carico</label>
+        <select class="fi" id="gen-carico">
+          <option value="basso">Basso (RPE 5-6)</option>
+          <option value="medio" selected>Medio (RPE 7-8)</option>
+          <option value="alto">Alto (RPE 8-9)</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="tbtn tbtn-gen" id="btn-genera">Genera Settimana</button>
+      <button class="tbtn tbtn-teal" id="btn-salva-sto">Salva nello Storico</button>
+      <button class="tbtn tbtn-red" id="btn-reset-tutto">Reset Completo</button>
+      <button class="tbtn tbtn-reset" id="btn-reset-sto">Reset Storico</button>
+    </div>
+  </div>
+  <div class="gen-box">
+    <h3>Blocco Rapido — Scegli Categoria ed Esercizi</h3>
+    <p style="font-size:11px;color:#888;margin-bottom:10px;">Filtra per fase e categoria, spunta gli esercizi e clicca "Aggiungi alla Sessione".</p>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+      <span style="font-size:11px;font-weight:700;color:var(--grey);">Filtra per fase:</span>
+      <select class="fi" id="blocco-fase" style="width:auto;padding:5px 10px;">
+        <option value="">Tutte le fasi</option>
+        <option value="F1">F1 — Preparazione Generale</option>
+        <option value="F2">F2 — Preparazione Specifica</option>
+        <option value="F3">F3 — Pre-Gara</option>
+        <option value="F4">F4 — Competizione</option>
+        <option value="F5">F5 — Transizione</option>
+      </select>
+    </div>
+    <div class="blocco-grid">
+      <button class="blocco-btn" data-cat="forza">Forza</button>
+      <button class="blocco-btn" data-cat="esplosiva">Esplosiva</button>
+      <button class="blocco-btn" data-cat="velocita">Velocità</button>
+      <button class="blocco-btn" data-cat="tecnica">Tecnica M° Colussi</button>
+      <button class="blocco-btn" data-cat="tattica">Tattica</button>
+      <button class="blocco-btn" data-cat="resistenza">Resistenza</button>
+      <button class="blocco-btn" data-cat="core">Core Stability</button>
+      <button class="blocco-btn" data-cat="flessibilita">Flessibilità</button>
+      <button class="blocco-btn" data-cat="prevenzione">Prevenzione</button>
+    </div>
+    <div id="blocco-output"></div>
+    <div class="es-sel-bar" id="sel-bar">
+      <div class="es-sel-count" id="sel-count">0 esercizi selezionati</div>
+      <div class="es-sel-list" id="sel-list"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px;">
+        <label style="font-size:11px;font-weight:700;color:var(--grey);">Aggiungi al giorno:</label>
+        <select class="fi" id="sel-giorno" style="width:auto;padding:5px 10px;">
+          <option value="-1">Nuovo blocco separato</option>
+        </select>
+        <button class="tbtn tbtn-gen" id="btn-aggiungi">Aggiungi alla Sessione</button>
+        <button class="tbtn tbtn-reset" id="btn-desel">Deseleziona tutto</button>
+      </div>
+    </div>
+  </div>
+  <div class="gen-box">
+    <h3>Settimana Generata</h3>
+    <div id="gen-output"><p style="color:#999;font-size:11px;text-align:center;padding:20px;">Nessuna settimana generata.</p></div>
+  </div>
+  <div class="gen-box">
+    <h3>Storico Generazioni <span style="font-size:11px;font-weight:400;color:#888;">— clicca per espandere, "Vedi completo" per il dettaglio</span></h3>
+    <div id="storico-output"><p style="color:#999;font-size:11px;text-align:center;padding:12px;">Nessuno storico.</p></div>
+  </div>
+</div>
+<!-- SCHEDA ATLETA -->
+<div id="page-atleta" class="page">
+  <div class="sec" style="background:var(--grey);margin-top:0;">Scheda Atleta — ASD CSKS Karate Mestre</div>
+  <div class="g2" style="margin-top:10px;">
+    <div class="card"><div class="card-hdr" style="background:var(--grey);">Dati Anagrafici</div><div class="card-body">
+      <div class="field-row"><span class="field-label">Nome e Cognome</span><input class="fi" placeholder="Es. Marco Rossi"></div>
+      <div class="field-row"><span class="field-label">Data di nascita</span><input class="fi" type="date"></div>
+      <div class="field-row"><span class="field-label">Categoria</span><input class="fi" placeholder="Es. Senior -75 kg"></div>
+      <div class="field-row"><span class="field-label">Cintura / Dan</span><input class="fi" placeholder="Es. 1 dan"></div>
+      <div class="field-row"><span class="field-label">Anni di pratica</span><input class="fi" type="number" placeholder="Es. 12"></div>
+      <div class="field-row"><span class="field-label">Guardia principale</span><select class="fi"><option>Destra</option><option>Sinistra</option></select></div>
+    </div></div>
+    <div class="card"><div class="card-hdr" style="background:var(--grey);">Fase e Obiettivi</div><div class="card-body">
+      <div class="field-row"><span class="field-label">Fase attuale</span><select class="fi"><option>F1</option><option>F2</option><option>F3</option><option>F4</option><option>F5</option></select></div>
+      <div class="field-row"><span class="field-label">Settimana corrente</span><input class="fi" type="number" placeholder="Es. 5"></div>
+      <div class="field-row"><span class="field-label">Prossima gara</span><input class="fi" type="date"></div>
+      <div class="field-row"><span class="field-label">Priorità tecnica 1</span><input class="fi" placeholder="Es. Mawashi jodan step 2"></div>
+      <div class="field-row"><span class="field-label">Priorità tecnica 2</span><input class="fi" placeholder="Es. Tattica da svantaggio"></div>
+      <div class="field-row"><span class="field-label">Note M° Colussi</span><textarea class="fi" placeholder="Annotazioni..."></textarea></div>
+    </div></div>
+  </div>
+</div>
+<!-- DIARIO -->
+<div id="page-diario" class="page">
+  <div class="sec" style="background:var(--f2);margin-top:0;">Diario di Allenamento — M° Colussi · ASD CSKS Karate Mestre</div>
+  <div class="al al-b" style="margin-top:10px;">Registra RPE effettivo, volume reale e note dopo ogni sessione.</div>
+  <div id="diario-container" style="margin-top:10px;"></div>
+  <div style="display:flex;gap:8px;margin-top:8px;">
+    <button class="tbtn tbtn-blue" id="btn-add-week">+ Aggiungi Settimana</button>
+    <button class="tbtn tbtn-reset" id="btn-clear-diario">Azzera</button>
+  </div>
+</div>
+<!-- CALENDARIO -->
+<div id="page-calendario" class="page">
+  <div class="sec" style="background:var(--f3);margin-top:0;">Calendario Gare — ASD CSKS Karate Mestre</div>
+  <div class="g2" style="margin-top:10px;">
+    <div>
+      <div class="card"><div class="card-hdr" style="background:var(--f3);">Aggiungi Gara</div><div class="card-body">
+        <div class="field-row"><span class="field-label">Nome gara</span><input class="fi" id="g-nome" placeholder="Es. Campionato Veneto"></div>
+        <div class="field-row"><span class="field-label">Data</span><input class="fi" type="date" id="g-data"></div>
+        <div class="field-row"><span class="field-label">Luogo</span><input class="fi" id="g-luogo" placeholder="Es. Mestre (VE)"></div>
+        <div class="field-row"><span class="field-label">Importanza</span>
+          <select class="fi" id="g-imp"><option value="A">A — Target Principale</option><option value="B">B — Importante</option><option value="C">C — Preparazione</option></select>
+        </div>
+        <button class="tbtn tbtn-red" id="btn-add-gara" style="width:100%;margin-top:6px;">Aggiungi al Calendario</button>
+      </div></div>
+      <div id="gara-list" style="margin-top:8px;"></div>
+    </div>
+    <div>
+      <div class="cal-nav"><button id="btn-cal-prev">&#8249;</button><h3 id="cal-title"></h3><button id="btn-cal-next">&#8250;</button></div>
+      <div class="cal-hdr" id="cal-hdr"></div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+  </div>
+</div>
+<!-- BENCHMARK -->
+<div id="page-benchmark" class="page">
+  <div class="sec" style="background:var(--f5);margin-top:0;">Benchmark e Test — M° Colussi · ASD CSKS Karate Mestre</div>
+  <div class="al al-b" style="margin-top:10px;">Ripetere ogni 4-8 settimane.</div>
+  <div id="bench-cards" style="margin-top:10px;"></div>
+</div>
+<!-- PIANO CARICO -->
+<div id="page-carico" class="page">
+  <div class="sec" style="background:var(--grey);margin-top:0;">Piano Carico Annuale — M° Colussi Stefano · ASD CSKS Karate Mestre</div>
+  <div class="al al-b" style="margin-top:10px;"><strong>TL</strong> = RPE x Volume. Regola +10%/sett. Verde meno di 2800 · Giallo 2800-3200 · Rosso oltre 3200.</div>
+  <div class="tbl-wrap" style="margin-top:10px;"><table class="pc">
+    <thead>
+      <tr>
+        <th style="background:var(--grey);text-align:left;min-width:120px;">Parametro</th>
+        <th style="background:var(--f1);" colspan="3">F1</th><th style="background:#0E6655;">Scarico</th>
+        <th style="background:var(--f2);" colspan="3">F2</th><th style="background:#0B4C6C;">Scarico</th>
+        <th style="background:var(--f3);" colspan="2">F3</th>
+        <th style="background:var(--f4);" colspan="2">F4</th>
+        <th style="background:var(--f5);" colspan="2">F5</th>
+      </tr>
+      <tr>
+        <th style="background:var(--grey);text-align:left;">Settimana</th>
+        <th style="background:var(--f1);">S1</th><th style="background:var(--f1);">S2</th><th style="background:var(--f1);">S3</th><th style="background:#0E6655;">S4</th>
+        <th style="background:var(--f2);">S5</th><th style="background:var(--f2);">S6</th><th style="background:var(--f2);">S7</th><th style="background:#0B4C6C;">S8</th>
+        <th style="background:var(--f3);">S9</th><th style="background:var(--f3);">S10</th>
+        <th style="background:var(--f4);">S11</th><th style="background:var(--f4);">S12</th>
+        <th style="background:var(--f5);">S13</th><th style="background:var(--f5);">S14</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Fase</td><td class="tc f1bg">F1</td><td class="tc f1bg">F1</td><td class="tc f1bg">F1</td><td class="tc scarico">Scar.</td><td class="tc f2bg">F2</td><td class="tc f2bg">F2</td><td class="tc f2bg">F2</td><td class="tc scarico">Scar.</td><td class="tc f3bg">F3</td><td class="tc f3bg">F3</td><td class="tc f4bg">F4</td><td class="tc f4bg">F4G</td><td class="tc f5bg">F5</td><td class="tc f5bg">F5</td></tr>
+      <tr class="er"><td><strong>Sessioni/sett.</strong></td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">5</td><td class="tc" contenteditable="false">4</td><td class="tc" contenteditable="false">4</td><td class="tc scarico" contenteditable="false">2</td><td class="tc" contenteditable="false">3</td><td class="tc" contenteditable="false">3</td></tr>
+      <tr class="er"><td><strong>Volume (min)</strong></td><td class="tc" contenteditable="false">300</td><td class="tc" contenteditable="false">320</td><td class="tc" contenteditable="false">350</td><td class="tc scarico" contenteditable="false">280</td><td class="tc" contenteditable="false">380</td><td class="tc" contenteditable="false">400</td><td class="tc" contenteditable="false">420</td><td class="tc scarico" contenteditable="false">310</td><td class="tc" contenteditable="false">350</td><td class="tc" contenteditable="false">300</td><td class="tc" contenteditable="false">220</td><td class="tc scarico" contenteditable="false">120</td><td class="tc" contenteditable="false">180</td><td class="tc" contenteditable="false">200</td></tr>
+      <tr class="er"><td><strong>RPE</strong></td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">6</td><td class="tc" contenteditable="false">7</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">7</td><td class="tc" contenteditable="false">8</td><td class="tc" contenteditable="false">8</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">8</td><td class="tc" contenteditable="false">8</td><td class="tc" contenteditable="false">6</td><td class="tc scarico" contenteditable="false">5</td><td class="tc" contenteditable="false">3</td><td class="tc" contenteditable="false">4</td></tr>
+      <tr class="er"><td><strong>Training Load</strong></td><td class="tc tl-v" contenteditable="false">1800</td><td class="tc tl-v" contenteditable="false">1920</td><td class="tc tl-y" contenteditable="false">2450</td><td class="tc scarico" contenteditable="false">1400</td><td class="tc tl-y" contenteditable="false">2660</td><td class="tc tl-r" contenteditable="false">3200</td><td class="tc tl-r" contenteditable="false">3360</td><td class="tc scarico" contenteditable="false">1550</td><td class="tc tl-y" contenteditable="false">2800</td><td class="tc tl-y" contenteditable="false">2400</td><td class="tc tl-v" contenteditable="false">1320</td><td class="tc scarico" contenteditable="false">600</td><td class="tc tl-v" contenteditable="false">540</td><td class="tc tl-v" contenteditable="false">800</td></tr>
+    </tbody>
+  </table></div>
+</div>
+</main>
+
+<script>
+(function(){
+'use strict';
+
+/* ===================== DATABASE ===================== */
+var DB={forza:[{n:'Squat bilanciere',det:'4x4 @ 85% RM. Concentrica esplosiva, eccentrica 3 sec.',rpe:8,src:'MC'},{n:'Stacco da terra',det:'4x5 @ 80% RM. Schiena neutra obbligatoria.',rpe:8,src:'MC'},{n:'Kettlebell swing',det:'4x15. Esplosione anca.',rpe:6,src:'MC'},{n:'Attacco potente su manopole',det:'Tecniche di pugno ad alta potenza sulle manopole. F2-F3.',rpe:8,src:'MC',mod:'COPPIA'},{n:'Potenza massima con elastico',det:'Max potenza contro resistenza elastica. F3-F4.',rpe:9,src:'MC',mod:'COPPIA'},{n:'Squat con bilanciere FM-01',det:'4-5 x 4-6 rip. Rec 3-4 min. F1-F2.',rpe:8,src:'DB',cod:'FM-01'},{n:'Stacco da terra FM-02',det:'4 x 3-5 rip. Rec 3-4 min. Core attivo. F1-F2.',rpe:8,src:'DB',cod:'FM-02'},{n:'Panca piana FM-03',det:'4 x 4-6 rip. Rec 3 min. Eccentrico 3 sec. F1.',rpe:8,src:'DB',cod:'FM-03'},{n:'Affondi con bilanciere FM-04',det:'3 x 6 rip/gamba. Rec 2 min. F1-F2.',rpe:7,src:'DB',cod:'FM-04'},{n:'Military press FM-05',det:'4 x 5 rip. Rec 3 min. Stabilizzazione scapolare. F1.',rpe:8,src:'DB',cod:'FM-05'},{n:'Rematore con bilanciere FM-06',det:'4 x 6 rip. Rec 2-3 min. F1-F2.',rpe:7,src:'DB',cod:'FM-06'}],esplosiva:[{n:'Box Jump con tecnica',det:'4x6. Tecnica immediata al rimbalzo.',rpe:8,src:'MC'},{n:'Squat Jump in guardia',det:'3x8. Atterraggio morbido in guardia.',rpe:8,src:'MC'},{n:'Bound laterale pliometrico',det:'5x6 rimbalzi. Replica crab step M° Colussi.',rpe:8,src:'MC'},{n:'Lunge jump in guardia',det:'3x10 alternati. Cambio guardia in volo.',rpe:7,src:'MC'},{n:'Flessione + kae-ashi + tsuki',det:'Flessione gambe, kae-ashi laterale, poi tsuki. F1-F2.',rpe:7,src:'MC',mod:'INDIVIDUALE'},{n:'Lancio palla medica + tecnica',det:'Alla ricezione tecnica di attacco immediata. 3-5 kg. F2-F3.',rpe:8,src:'MC',mod:'COPPIA'},{n:'Squat jump corpo libero FE-01',det:'4 x 8 rip. Rec 2 min. F2-F3.',rpe:8,src:'DB',cod:'FE-01'},{n:'Box jump FE-02',det:'4 x 6 rip. Rec 2 min. F2-F3.',rpe:8,src:'DB',cod:'FE-02'},{n:'Drop jump FE-04',det:'4 x 6 rip. Rec 3 min. Contatto suolo meno di 0.2 sec. F2-F3.',rpe:9,src:'DB',cod:'FE-04'},{n:'Salto laterale reattivo FE-07',det:'4 x 8 rip. Rec 2 min. Imita spostamento laterale. F2-F3.',rpe:8,src:'DB',cod:'FE-07'},{n:'Power clean FE-08',det:'4 x 4 rip. Rec 3 min. Tecnica olimpica. F2.',rpe:9,src:'DB',cod:'FE-08'}],velocita:[{n:'Shadowboxing 30/30',det:'8-10 round. Max velocità. Contare le tecniche.',rpe:9,src:'MC'},{n:'Reazione stimolo colore 4 tecniche',det:'3x20 stimoli imprevedibili. 100% intensità.',rpe:9,src:'MC'},{n:'10 Gyaku tsuki al pao',det:'5 serie. Target meno di 4 sec. Benchmark V-02.',rpe:9,src:'MC'},{n:'Sprint + cambio direzione + tsuki',det:'Sprint, cambio direzione su segnale audio, tsuki. F1-F2.',rpe:8,src:'MC',mod:'INDIVIDUALE'},{n:'Kae-ashi su scala orizzontale',det:'Spostamenti laterali rapidi su scala di agilità. F1-F2.',rpe:7,src:'MC',mod:'INDIVIDUALE'},{n:'Drill attacco su segnale visivo',det:'Uke alza il braccio, reagire con gyaku o kizami. F2.',rpe:7,src:'MC',mod:'COPPIA'},{n:'Di spalle: girarsi e tecnica simultanea',det:'Al segnale si girano, il primo ad arrivare vince. F2-F3.',rpe:8,src:'MC',mod:'COPPIA'},{n:'Sprint 10m da fermo VL-01',det:'8 x 10m. Rec 3 min. F2-F4.',rpe:9,src:'DB',cod:'VL-01'},{n:'Sprint 20m lanciato VL-02',det:'6 x 20m. Rec 3 min. F2-F4.',rpe:9,src:'DB',cod:'VL-02'},{n:'Sprint cambio direzione T-test VL-04',det:'6 ripetizioni. Rec 3 min. F3-F4.',rpe:9,src:'DB',cod:'VL-04'},{n:'Reazione segnale visivo VR-01',det:'5 x 10 rip. Rec 90 sec. F2-F4.',rpe:8,src:'DB',cod:'VR-01'},{n:'Parry and counter drill VR-03',det:'4 x 15 rip. Rec 90 sec. F3-F4.',rpe:9,src:'DB',cod:'VR-03'},{n:'Mirror drill VR-05',det:'4 x 30 sec. Rec 90 sec. Lettura intenzione. F3-F4.',rpe:8,src:'DB',cod:'VR-05'}],tecnica:[{n:'Gyaku tsuki specchio 3 velocita',det:'3x60 rep (20 lento + 20 medio + 20 max). Forma corretta ogni rep.',rpe:6,src:'MC'},{n:'Kizami tsuki 4 varianti',det:'3x15 per variante. Automatizzare prima di accelerare.',rpe:6,src:'MC'},{n:'Mawashi step 1+2',det:'10 min per step. Lento e controllato.',rpe:5,src:'MC'},{n:'Mawashi step 3 simultaneo',det:'3x15. Solo se step 1+2 automatici.',rpe:7,src:'MC'},{n:'Combinazione Kizami+Gyaku+Mawashi',det:'3-4x15/lato. Massima velocità.',rpe:8,src:'MC'},{n:'Tecnica su tocco stimolo tattile',det:'Uke tocca parte del corpo, rispondere con arto corrispondente. F2-F3.',rpe:8,src:'MC',mod:'COPPIA'},{n:'Tecnica su abbassamento guardia',det:'Uke abbassa guardia, cogliere il varco. Zanshin! F2-F3.',rpe:8,src:'MC',mod:'COPPIA'},{n:'Attacco tecnico lento defaticamento',det:'Focus forma, postura e kime. Post-sessione. F1-F4.',rpe:5,src:'MC',mod:'COPPIA'},{n:'Shiko-dachi statico TNT-01',det:'3 x 45 sec. Rec 60 sec. F1-F5.',rpe:5,src:'DB',cod:'TNT-01'},{n:'Crab step avanti-indietro TNT-02',det:'4 x 10 rip. Rec 60 sec. F1-F4.',rpe:6,src:'DB',cod:'TNT-02'},{n:'Crab step laterale TNT-03',det:'4 x 10 rip. Rec 60 sec. F1-F4.',rpe:6,src:'DB',cod:'TNT-03'},{n:'Gyaku-zuki su shiko-dachi TNT-04',det:'4 x 15 rip. Rec 60 sec. F2-F5.',rpe:6,src:'DB',cod:'TNT-04'},{n:'Kizami-zuki con crab step TNT-05',det:'4 x 15 rip. Rec 60 sec. F2-F5.',rpe:7,src:'DB',cod:'TNT-05'},{n:'Mawashi-geri dalla distanza TNT-06',det:'4 x 10/lato. Rec 90 sec. F2-F5.',rpe:7,src:'DB',cod:'TNT-06'},{n:'Combo 3 colpi su pao TNT-08',det:'4 x 10 rip. Rec 90 sec. F3-F5.',rpe:8,src:'DB',cod:'TNT-08'},{n:'Shadowboxing M° Colussi TNT-09',det:'3 x 2 min. Rec 90 sec. Solo tecnica M° Colussi. F3-F5.',rpe:7,src:'DB',cod:'TNT-09'}],tattica:[{n:'Simulazione vantaggio senshu',det:'5 sim x 2 min. Crab step retrogrado, mantenere distanza.',rpe:7,src:'MC'},{n:'Rimonta da meno 1 o 2 pt con calcio',det:'10 sim x 3 min. Il calcio vale 2-3 punti.',rpe:8,src:'MC'},{n:'Ultimi 30 secondi timer annunciato',det:'5 sim. Timer annunciato. Reagire con tattica assegnata.',rpe:8,src:'MC'},{n:'Visualizzazione 3 match completi',det:'15-20 min. Match completi con vittoria.',rpe:3,src:'MC'},{n:'Anticipo su passo avanti Uke',det:'Anticipare con gyaku o kizami nel maai corretto. F2-F3.',rpe:9,src:'MC',mod:'COPPIA'},{n:'Sistema 1-2-3 difesa/contra/anticipa',det:'Coach conta: 1=difesa, 2=difesa+contro, 3=anticipazione. F2-F3.',rpe:9,src:'MC',mod:'COPPIA'},{n:'3 stimoli avanza/arretra/fermo',det:'Avanza=anticipa gyaku, arretra=combo, fermo=gamba. F3-F4.',rpe:9,src:'MC',mod:'COPPIA'},{n:'Difesa al limite del tatami chokoku',det:'Al bordo, nessuna via di fuga, difende e contrattacca. F3.',rpe:9,src:'MC',mod:'COPPIA'},{n:'2 vs 1 difesa da doppio attacco',det:'2 attaccanti vs 1 difensore. Elevato stress cognitivo. F3.',rpe:9,src:'MC',mod:'TRIO'},{n:'Sistema orologio 5p',det:'1 al centro, 4 alle ore. Coach dice ora = quel compagno attacca. F3-F4.',rpe:9,src:'MC',mod:'GRUPPO'},{n:'Drill tattico entry + colpo TAT-02',det:'4 x 10 rip. Rec 90 sec. F3-F5.',rpe:8,src:'DB',cod:'TAT-02'},{n:'Finte con crab step TAT-04',det:'4 x 12 rip. Rec 90 sec. F3-F5.',rpe:8,src:'DB',cod:'TAT-04'},{n:'Tattica situazionale sotto punteggio TAT-05',det:'3 x 3 min. Rec 2 min. Scenario: -2 punti, 30 sec fine. F4-F5.',rpe:9,src:'DB',cod:'TAT-05'},{n:'Tattica situazionale sopra punteggio TAT-06',det:'3 x 3 min. Rec 2 min. Scenario: +2 punti, gestione. F4-F5.',rpe:8,src:'DB',cod:'TAT-06'},{n:'Analisi video azioni vincenti TAT-01',det:'30 min. Analisi 10 azioni del campione. F3-F5.',rpe:3,src:'DB',cod:'TAT-01'},{n:'Analisi avversario pre-gara TAT-07',det:'60 min. Video scouting, punti deboli. F4.',rpe:3,src:'DB',cod:'TAT-07'}],resistenza:[{n:'HIIT Kumite 6x3 min',det:'Rec 60 a 30 sec. Tecnica corretta sotto fatica massimale.',rpe:9,src:'MC'},{n:'Interval 3 min / 1 min off',det:'4 a 6 round. +1 round ogni 2 sett.',rpe:8,src:'MC'},{n:'Tabata tecnico 20/10x8',det:'4 min totali. Una sola tecnica per sessione.',rpe:9,src:'MC'},{n:'Piramide 1-2-3-2-1 min',det:'9 min totali.',rpe:8,src:'MC'},{n:'Combo attacco-difesa sul Pao',det:'Tori attacca, Uke tiene pao per risposta. 2-3 min continui. F2-F3.',rpe:9,src:'MC',mod:'COPPIA'},{n:'1 vs 3 tecnica libera + anticipo',det:'1 atleta vs 3 compagni. Simula gara. F3-F4.',rpe:9,src:'MC',mod:'GRUPPO'},{n:'CIRCUITO COMPLETO manopole+pao+sacco',det:'Circuito con tutte le attrezzature. 4x3 min. F4.',rpe:10,src:'MC',mod:'GRUPPO'},{n:'Corsa continua 30 min RA-01',det:'1 x 30 min. FC 65-75%. F1.',rpe:5,src:'DB',cod:'RA-01'},{n:'Fartlek 20 min RA-02',det:'1 x 20 min. Alternanza ritmi. F1-F2.',rpe:6,src:'DB',cod:'RA-02'},{n:'Interval aerobico 10x2min RA-04',det:'10 x 2 min. Rec 1 min. FC 80-85%. F1-F2.',rpe:7,src:'DB',cod:'RA-04'},{n:'Combinazioni per 2 min RS-01',det:'3 x 2 min. Rec 2 min. F2-F4.',rpe:8,src:'DB',cod:'RS-01'},{n:'Shadowboxing 3x3 min RS-02',det:'3 x 3 min. Rec 1 min. F2-F4.',rpe:8,src:'DB',cod:'RS-02'},{n:'Sparring controllato 3x2 min RS-03',det:'3 x 2 min. Rec 2 min. F3-F4.',rpe:9,src:'DB',cod:'RS-03'},{n:'Pao work 4x2 min RS-04',det:'4 x 2 min. Rec 90 sec. F2-F4.',rpe:8,src:'DB',cod:'RS-04'},{n:'Kumite simulato 3x3 min RS-05',det:'3 x 3 min. Rec 1 min. F3-F4.',rpe:9,src:'DB',cod:'RS-05'},{n:'Interval specifico 10x30sec RS-06',det:'10 x 30 sec. Rec 30 sec. F2-F3.',rpe:9,src:'DB',cod:'RS-06'}],core:[{n:'Plank frontale CS-01',det:'4 x 45-90 sec. Rec 60 sec. F1-F2.',rpe:6,src:'DB',cod:'CS-01'},{n:'Plank laterale CS-02',det:'3 x 30-60 sec/lato. Rec 60 sec. F1-F2.',rpe:6,src:'DB',cod:'CS-02'},{n:'Dead bug CS-03',det:'3 x 10 rip/lato. Rec 60 sec. F1.',rpe:5,src:'DB',cod:'CS-03'},{n:'Pallof press CS-04',det:'3 x 12 rip/lato. Rec 60 sec. F1-F2.',rpe:6,src:'DB',cod:'CS-04'},{n:'Rotazioni elastic band CS-05',det:'3 x 15 rip/lato. Rec 60 sec. F2-F3.',rpe:6,src:'DB',cod:'CS-05'},{n:'Russian twist medball CS-07',det:'3 x 20 rip. Rec 60 sec. F2.',rpe:6,src:'DB',cod:'CS-07'},{n:'Hollow body hold CS-08',det:'4 x 20-40 sec. Rec 60 sec. F1-F2.',rpe:6,src:'DB',cod:'CS-08'}],flessibilita:[{n:'Leg swing frontale laterale FD-01',det:'3 x 20 rip. Rec 30 sec. F1-F3.',rpe:4,src:'DB',cod:'FD-01'},{n:'Hip circle FD-02',det:'3 x 15 rip/lato. Rec 30 sec. F1-F3.',rpe:4,src:'DB',cod:'FD-02'},{n:'Affondo dinamico con rotazione FD-03',det:'3 x 10 rip/lato. Rec 30 sec. F1-F3.',rpe:5,src:'DB',cod:'FD-03'},{n:'Spaccata frontale progressiva FS-01',det:'3 x 60 sec. Rec 60 sec. F1-F5.',rpe:5,src:'DB',cod:'FS-01'},{n:'Spaccata laterale FS-02',det:'3 x 60 sec. Rec 60 sec. F1-F5.',rpe:5,src:'DB',cod:'FS-02'},{n:'Stiramento ischiocrurali FS-03',det:'3 x 45 sec/lato. Rec 45 sec. F1-F5.',rpe:4,src:'DB',cod:'FS-03'},{n:'Stiramento flessori anca FS-04',det:'3 x 45 sec/lato. Rec 45 sec. F1-F5.',rpe:4,src:'DB',cod:'FS-04'}],prevenzione:[{n:'Nordic hamstring curl PI-01',det:'3 x 6-8 rip. Rec 2 min. F1.',rpe:7,src:'DB',cod:'PI-01'},{n:'Calf raise su gradino PI-02',det:'3 x 15 rip. Rec 60 sec. F1-F2.',rpe:6,src:'DB',cod:'PI-02'},{n:'Propriocezione su tavoletta PI-03',det:'3 x 30 sec/piede. Rec 60 sec. F1-F3.',rpe:5,src:'DB',cod:'PI-03'},{n:'Band walk abduttori anca PI-04',det:'3 x 15 passi/lato. Rec 60 sec. F1-F2.',rpe:5,src:'DB',cod:'PI-04'},{n:'Rotatori cuffia elastic band PI-05',det:'3 x 15 rip/lato. Rec 60 sec. F1.',rpe:5,src:'DB',cod:'PI-05'},{n:'Stabilizzazione monopodale PI-06',det:'3 x 30 sec/piede. Rec 60 sec. F1-F3.',rpe:5,src:'DB',cod:'PI-06'}]};
+
+var COLORI={forza:'#E74C3C',esplosiva:'#E67E22',velocita:'#2980B9',tecnica:'#1A7A3A',tattica:'#8E44AD',resistenza:'#7B0000',core:'#16A085',flessibilita:'#F39C12',prevenzione:'#5B2C6F'};
+var GIORNI=['Lunedi','Martedi','Mercoledi','Giovedi','Venerdi','Sabato'];
+var MESI=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+var GIORNI_IT=['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+var FC_MAP={'1':'#1A7A3A','2':'#1A5276','3':'#7B0000','4':'#7D6608','5':'#5B2C6F'};
+var BENCH=[{id:'v01',label:'V-01 Salto Verticale',unit:'cm',ottimo:45,buono:38,higher:true,color:'#1A7A3A'},{id:'v02',label:'V-02 10 Tsuki al Pao',unit:'sec',ottimo:4,buono:5,higher:false,color:'#E74C3C'},{id:'v03',label:'V-03 Altezza Mawashi Geri',unit:'cm',ottimo:160,buono:130,higher:true,color:'#8E44AD'},{id:'v05',label:'V-05 Spaccata Laterale',unit:'cm',ottimo:10,buono:25,higher:false,color:'#F39C12'},{id:'v06',label:'V-06 Sprint 10m da Guardia',unit:'sec',ottimo:1.8,buono:2.1,higher:false,color:'#2980B9'},{id:'v08',label:'V-08 Cooper 12 Minuti',unit:'m',ottimo:3000,buono:2700,higher:true,color:'#1A7A3A'}];
+
+/* stato */
+var currentPage='piano', currentFase='f1', editOn=false;
+var storico=[], sessioneExtra=[], lastGen=null;
+var selectedEs={}, selectedCat=null;
+var diarioWeeks=[], gare=[], benchData={};
+var calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+var stoModalIdx=-1;
+
+/* ===================== HELPERS ===================== */
+function badge(e){
+  var b=e.src==='DB'?'<span class="src-badge" style="background:#16A085;color:white;">DB</span>'+(e.cod?'<span class="src-badge" style="background:#EEE;color:#555;">'+e.cod+'</span>':''):'<span class="src-badge" style="background:#1A5276;color:white;">MC</span>';
+  return b+(e.mod?'<span class="src-badge" style="background:#ECF0F1;color:#555;">'+e.mod+'</span>':'');
+}
+function fmtD(d){if(!d)return'';var p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function esMatchFase(e,fase){
+  if(!fase)return true;
+  if(e.src==='MC'&&!e.cod)return['F1','F2','F3'].indexOf(fase)!==-1;
+  return(e.det+' '+(e.cod||'')).toUpperCase().indexOf(fase)!==-1;
+}
+
+/* ===================== NAV ===================== */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  var el=document.getElementById('page-'+id);
+  if(el)el.classList.add('active');
+  var btn=document.querySelector('.nav-btn[data-page="'+id+'"]');
+  if(btn)btn.classList.add('active');
+  currentPage=id;
+  var fn=document.getElementById('fase-nav');
+  if(fn)fn.style.display=id==='piano'?'flex':'none';
+}
+function showFase(f){
+  document.querySelectorAll('.fase-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.fase-btn').forEach(function(b){b.classList.remove('active');});
+  var el=document.getElementById('fp-'+f);
+  if(el)el.classList.add('active');
+  var btn=document.querySelector('.fase-btn[data-f="'+f+'"]');
+  if(btn)btn.classList.add('active');
+  currentFase=f;
+}
+
+/* ===================== EDIT ===================== */
+function toggleEdit(){
+  editOn=!editOn;
+  document.querySelectorAll('[contenteditable]').forEach(function(el){el.contentEditable=editOn?'true':'false';});
+  document.body.classList.toggle('edit',editOn);
+  var btn=document.getElementById('edit-btn');
+  btn.classList.toggle('on',editOn);
+  btn.textContent=editOn?'Modifica ON':'Modifica';
+  document.getElementById('edit-hint').style.display=editOn?'inline':'none';
+  document.getElementById('save-btn').style.display=editOn?'inline-block':'none';
+}
+function confirmSave(){
+  var btn=document.getElementById('save-btn');
+  btn.textContent='Salvato';btn.style.background='#145A32';
+  setTimeout(function(){btn.textContent='Salva';btn.style.background='var(--ok)';},2000);
+}
+
+/* ===================== STAMPA ===================== */
+function printCurrent(){
+  document.querySelectorAll('.page').forEach(function(p){p.id!=='page-'+currentPage?p.classList.add('no-print'):p.classList.remove('no-print');});
+  setTimeout(function(){window.print();restorePages();},100);
+}
+function printAll(){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('no-print');});
+  setTimeout(function(){window.print();restorePages();},100);
+}
+function printSelected(){
+  var sel=[];
+  document.querySelectorAll('#pm-checks input:checked').forEach(function(c){sel.push(c.value);});
+  document.querySelectorAll('.page').forEach(function(p){sel.indexOf(p.id.replace('page-',''))!==-1?p.classList.remove('no-print'):p.classList.add('no-print');});
+  closePM();
+  setTimeout(function(){window.print();restorePages();},100);
+}
+function restorePages(){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('no-print');if(p.id!=='page-'+currentPage)p.classList.remove('active');});
+  var cur=document.getElementById('page-'+currentPage);if(cur)cur.classList.add('active');
+}
+function openPM(){document.getElementById('pm').classList.add('open');}
+function closePM(){document.getElementById('pm').classList.remove('open');}
+
+/* ===================== GENERATORE ===================== */
+function updateGiornoSelect(){
+  var sel=document.getElementById('sel-giorno');
+  if(!sel)return;
+  sel.innerHTML='<option value="-1">Nuovo blocco separato</option>';
+  if(lastGen&&lastGen.settimana){
+    lastGen.settimana.forEach(function(g,i){
+      var opt=document.createElement('option');
+      opt.value=i;
+      opt.textContent=g.giorno+' ['+(g.cat1||'').toUpperCase()+']';
+      sel.appendChild(opt);
+    });
+  }
+}
+
+function generaSettimana(){
+  var obj=document.getElementById('gen-obiettivo').value;
+  var nSess=parseInt(document.getElementById('gen-sessioni').value);
+  var carico=document.getElementById('gen-carico').value;
+  var rpeBase=carico==='basso'?5:carico==='medio'?7:8;
+  var prio={generale:['tecnica','forza','resistenza','velocita','tattica','esplosiva'],velocita:['velocita','esplosiva','tecnica','resistenza','tattica','forza'],esplosivita:['esplosiva','forza','velocita','tecnica','resistenza','tattica'],tecnica:['tecnica','velocita','tattica','resistenza','esplosiva','forza'],tattica:['tattica','tecnica','velocita','resistenza','esplosiva','forza'],resistenza:['resistenza','tecnica','tattica','velocita','esplosiva','forza']};
+  var ordine=prio[obj]||prio.generale;
+  var usati={};
+  var settimana=[];
+  GIORNI.slice(0,nSess).forEach(function(giorno,i){
+    var c1=ordine[i%ordine.length],c2=ordine[(i+2)%ordine.length];
+    var p1=(DB[c1]||[]).filter(function(e){return!usati[e.n];});
+    var p2=(DB[c2]||[]).filter(function(e){return!usati[e.n];});
+    var e1=p1[Math.floor(Math.random()*p1.length)]||(DB[c1]||[])[0];
+    var e2=p2[Math.floor(Math.random()*p2.length)]||(DB[c2]||[])[0];
+    if(e1)usati[e1.n]=1;if(e2)usati[e2.n]=1;
+    settimana.push({giorno:giorno,cat1:c1,es1:e1,cat2:c2,es2:e2,rpe:Math.min(9,rpeBase+(i===Math.floor(nSess/2)?1:0)),extra:[]});
+  });
+  lastGen={data:new Date().toLocaleDateString('it-IT'),obj:obj,carico:carico,nSess:nSess,settimana:settimana,id:Date.now()};
+  sessioneExtra=[];
+  renderSettimana(settimana);
+  updateGiornoSelect();
+}
+
+function renderSettimana(settimana){
+  var html='';
+  settimana.forEach(function(s){
+    var col=COLORI[s.cat1]||'#333';
+    html+='<div class="gen-day" style="border-left-color:'+col+';">';
+    html+='<h4>'+s.giorno+' <span class="rpe-badge">RPE '+s.rpe+'</span></h4><ul>';
+    if(s.es1)html+='<li><strong>['+s.cat1.toUpperCase()+']</strong> '+s.es1.n+' '+badge(s.es1)+'<br><em style="color:#666;font-size:10px;">'+s.es1.det+'</em></li>';
+    if(s.es2)html+='<li style="margin-top:3px;"><strong>['+s.cat2.toUpperCase()+']</strong> '+s.es2.n+' '+badge(s.es2)+'<br><em style="color:#666;font-size:10px;">'+s.es2.det+'</em></li>';
+    if(s.extra&&s.extra.length){s.extra.forEach(function(e){html+='<li style="margin-top:3px;"><strong>[AGGIUNTO]</strong> '+e.n+' '+badge(e)+'<br><em style="color:#666;font-size:10px;">'+e.det+'</em></li>';});}
+    html+='<li style="color:#aaa;margin-top:3px;font-size:10px;">+ Riscaldamento 10 min · Defaticamento · Flessibilita 15 min</li>';
+    html+='</ul></div>';
+  });
+  document.getElementById('gen-output').innerHTML=html||'<p style="color:#999;font-size:11px;text-align:center;padding:20px;">Nessuna settimana generata.</p>';
+}
+
+function resetTutto(){
+  if(!confirm('Resettare la settimana generata e tutti gli esercizi aggiunti?'))return;
+  lastGen=null;sessioneExtra=[];selectedEs={};
+  document.getElementById('gen-output').innerHTML='<p style="color:#999;font-size:11px;text-align:center;padding:20px;">Nessuna settimana generata.</p>';
+  document.querySelectorAll('.blocco-btn').forEach(function(b){b.classList.remove('sel');});
+  document.getElementById('blocco-output').innerHTML='';
+  document.getElementById('sel-bar').classList.remove('visible');
+  selectedCat=null;
+  updateGiornoSelect();
+}
+
+function salvaStorico(){
+  if(!lastGen){alert('Genera prima una settimana.');return;}
+  storico.unshift({data:lastGen.data,obj:lastGen.obj,carico:lastGen.carico,nSess:lastGen.nSess,settimana:JSON.parse(JSON.stringify(lastGen.settimana)),id:Date.now()});
+  renderStorico();
+}
+function resetStorico(){if(confirm('Azzerare lo storico?')){storico=[];renderStorico();}}
+function delStorico(id){storico=storico.filter(function(s){return s.id!==id;});renderStorico();}
+
+function renderStorico(){
+  var c=document.getElementById('storico-output');
+  if(!storico.length){c.innerHTML='<p style="color:#999;font-size:11px;text-align:center;padding:12px;">Nessuno storico.</p>';return;}
+  var html='';
+  storico.forEach(function(s,si){
+    var preview=s.settimana.slice(0,3).map(function(g){return g.es1?g.giorno+': '+g.es1.n:'';}).filter(Boolean).join(' · ');
+    var extra=s.settimana.length>3?' ... +'+(s.settimana.length-3)+' giorni':'';
+    html+='<div class="sto-item">';
+    html+='<div class="sto-hdr-row" data-si="'+si+'">';
+    html+='<div><div class="sto-hdr-left">'+s.data+' <span style="font-weight:400;color:#888;font-size:11px;">· '+s.obj+' · '+s.nSess+' sess. · '+s.carico+'</span></div><div class="sto-preview">'+preview+extra+'</div></div>';
+    html+='<div class="sto-hdr-right">';
+    html+='<button class="tbtn tbtn-gen" style="font-size:10px;padding:4px 10px;" data-open="'+si+'">Vedi completo</button>';
+    html+='<button class="sto-del" data-del="'+s.id+'">Elimina</button>';
+    html+='<span class="sto-arrow" id="sto-arr-'+si+'">&#9654;</span>';
+    html+='</div></div>';
+    html+='<div class="sto-body" id="sto-body-'+si+'"><div class="sto-days">';
+    s.settimana.forEach(function(g){
+      var col=COLORI[g.cat1]||'#333';
+      html+='<div class="sto-day-card" style="border-top-color:'+col+';"><div class="sto-day-title">'+g.giorno+' <span style="font-weight:400;color:#888;font-size:10px;">RPE '+g.rpe+'</span></div><div class="sto-day-es">';
+      if(g.es1){var bc=g.es1.src==='DB'?'#16A085':'#1A5276';var lb=g.es1.src==='DB'?'DB':'MC';html+='<div>&#8226; <strong>'+g.es1.n+'</strong> <span class="src-badge" style="background:'+bc+';color:white;">'+lb+'</span><br><span style="color:#888;font-size:9px;">'+(g.es1.det.length>70?g.es1.det.substring(0,70)+'...':g.es1.det)+'</span></div>';}
+      if(g.es2){var bc2=g.es2.src==='DB'?'#16A085':'#1A5276';var lb2=g.es2.src==='DB'?'DB':'MC';html+='<div style="margin-top:3px;">&#8226; <strong>'+g.es2.n+'</strong> <span class="src-badge" style="background:'+bc2+';color:white;">'+lb2+'</span><br><span style="color:#888;font-size:9px;">'+(g.es2.det.length>70?g.es2.det.substring(0,70)+'...':g.es2.det)+'</span></div>';}
+      if(g.extra&&g.extra.length){g.extra.forEach(function(e){html+='<div style="margin-top:3px;">&#8226; <strong>'+e.n+'</strong> <span class="src-badge" style="background:#8E44AD;color:white;">AGG.</span></div>';});}
+      html+='</div></div>';
+    });
+    html+='</div></div></div>';
+  });
+  c.innerHTML=html;
+  c.querySelectorAll('.sto-hdr-row').forEach(function(row){
+    row.addEventListener('click',function(ev){if(ev.target.closest('button'))return;toggleSto(parseInt(row.getAttribute('data-si')));});
+  });
+  c.querySelectorAll('[data-open]').forEach(function(btn){btn.addEventListener('click',function(ev){ev.stopPropagation();openStoModal(parseInt(btn.getAttribute('data-open')));});});
+  c.querySelectorAll('[data-del]').forEach(function(btn){btn.addEventListener('click',function(ev){ev.stopPropagation();delStorico(parseInt(btn.getAttribute('data-del')));});});
+}
+
+function toggleSto(i){
+  var body=document.getElementById('sto-body-'+i);
+  var arr=document.getElementById('sto-arr-'+i);
+  if(!body)return;
+  var open=body.classList.toggle('open');
+  if(arr)arr.classList.toggle('open',open);
+}
+
+function openStoModal(i){
+  stoModalIdx=i;
+  var s=storico[i];if(!s)return;
+  document.getElementById('sto-modal-title').textContent='Programma del '+s.data;
+  document.getElementById('sto-modal-sub').textContent='Obiettivo: '+s.obj+' · '+s.nSess+' sessioni · Carico: '+s.carico;
+  var html='';
+  s.settimana.forEach(function(g){
+    var col=COLORI[g.cat1]||'#333';
+    html+='<div class="gen-day" style="border-left-color:'+col+';margin-bottom:10px;">';
+    html+='<h4 style="font-size:13px;font-weight:800;color:var(--grey);margin-bottom:6px;">'+g.giorno+' <span class="rpe-badge">RPE '+g.rpe+'</span></h4>';
+    html+='<ul style="padding-left:16px;font-size:12px;color:#444;line-height:2;">';
+    if(g.es1)html+='<li><strong>['+g.cat1.toUpperCase()+']</strong> '+g.es1.n+' '+badge(g.es1)+'<br><em style="color:#666;font-size:11px;">'+g.es1.det+'</em></li>';
+    if(g.es2)html+='<li style="margin-top:3px;"><strong>['+(g.cat2||'').toUpperCase()+']</strong> '+g.es2.n+' '+badge(g.es2)+'<br><em style="color:#666;font-size:11px;">'+g.es2.det+'</em></li>';
+    if(g.extra&&g.extra.length){g.extra.forEach(function(e){html+='<li style="margin-top:3px;"><strong>[AGGIUNTO]</strong> '+e.n+' '+badge(e)+'<br><em style="color:#666;font-size:11px;">'+e.det+'</em></li>';});}
+    html+='<li style="color:#aaa;margin-top:3px;font-size:10px;">+ Riscaldamento 10 min · Defaticamento · Flessibilita 15 min</li>';
+    html+='</ul></div>';
+  });
+  document.getElementById('sto-modal-body').innerHTML=html;
+  document.getElementById('sto-modal').classList.add('open');
+}
+
+/* ===================== BLOCCO RAPIDO ===================== */
+function renderBlocco(cat){
+  selectedCat=cat;
+  var fase=document.getElementById('blocco-fase').value;
+  var tutti=DB[cat]||[];
+  var esercizi=tutti.filter(function(e){return esMatchFase(e,fase);});
+  var col=COLORI[cat]||'#333';
+  var out=document.getElementById('blocco-output');
+  if(!esercizi.length){out.innerHTML='<div style="padding:16px;text-align:center;color:#999;font-size:11px;">Nessun esercizio per <strong>'+cat+'</strong>'+(fase?' in '+fase:'')+'. Cambia filtro.</div>';return;}
+  var mc=esercizi.filter(function(e){return e.src==='MC';}).length;
+  var db=esercizi.filter(function(e){return e.src==='DB';}).length;
+  var html='<div style="font-weight:700;font-size:11px;color:'+col+';margin:10px 0 8px;">'+cat.toUpperCase()+(fase?' - '+fase:'')+' - '+esercizi.length+' esercizi <span style="font-weight:400;color:#888;">('+mc+' MC · '+db+' DB)</span></div>';
+  esercizi.forEach(function(e){
+    var origIdx=tutti.findIndex(function(x){return x.n===e.n;});
+    var key=cat+'__'+origIdx;
+    var chk=selectedEs[key]?'checked':'';
+    html+='<div class="es-card" style="border-left-color:'+col+';"><input type="checkbox" class="es-card-check" data-key="'+key+'" '+chk+'><div class="es-card-body"><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;"><strong>'+e.n+'</strong><span style="background:#EEE;color:#555;padding:0 5px;border-radius:3px;font-size:9px;font-weight:700;">RPE '+e.rpe+'</span>'+badge(e)+'</div><div class="det">'+e.det+'</div></div></div>';
+  });
+  out.innerHTML=html;
+  out.querySelectorAll('.es-card-check').forEach(function(cb){
+    cb.addEventListener('change',function(){
+      var key=cb.getAttribute('data-key');
+      if(cb.checked)selectedEs[key]=true;else delete selectedEs[key];
+      updateSelBar();
+    });
+  });
+}
+
+function updateSelBar(){
+  var keys=Object.keys(selectedEs);
+  var bar=document.getElementById('sel-bar');
+  if(!keys.length){bar.classList.remove('visible');return;}
+  bar.classList.add('visible');
+  var items=getSelectedItems();
+  document.getElementById('sel-count').textContent=items.length+' esercizi selezionati';
+  var lhtml='';items.forEach(function(e){lhtml+='<div>&#8226; <strong>'+e.n+'</strong> '+badge(e)+'</div>';});
+  document.getElementById('sel-list').innerHTML=lhtml;
+}
+
+function getSelectedItems(){
+  var items=[];
+  Object.keys(selectedEs).forEach(function(key){
+    var parts=key.split('__');var cat=parts[0];var idx=parseInt(parts[1]);
+    if(DB[cat]&&DB[cat][idx])items.push(DB[cat][idx]);
+  });
+  return items;
+}
+
+function aggiungiSelezionati(){
+  var items=getSelectedItems();
+  if(!items.length){alert('Seleziona almeno un esercizio.');return;}
+  var giornoIdx=parseInt(document.getElementById('sel-giorno').value);
+  if(lastGen&&lastGen.settimana&&lastGen.settimana.length){
+    if(giornoIdx>=0&&lastGen.settimana[giornoIdx]){
+      lastGen.settimana[giornoIdx].extra=(lastGen.settimana[giornoIdx].extra||[]).concat(items);
+    } else {
+      lastGen.settimana.push({giorno:'Sessione Aggiuntiva',cat1:'aggiunto',cat2:'',es1:null,es2:null,rpe:'—',extra:items});
+    }
+    renderSettimana(lastGen.settimana);
+    updateGiornoSelect();
+  } else {
+    var html='<div class="gen-day" style="border-left-color:#8E44AD;"><h4>Esercizi aggiunti manualmente</h4><ul>';
+    items.forEach(function(e){html+='<li><strong>'+e.n+'</strong> '+badge(e)+'<br><em style="color:#666;font-size:10px;">'+e.det+'</em></li>';});
+    html+='</ul></div>';
+    document.getElementById('gen-output').innerHTML=html;
+  }
+  deselezionaTutti();
+  alert(items.length+' esercizi aggiunti!');
+}
+
+function deselezionaTutti(){
+  selectedEs={};
+  document.querySelectorAll('.es-card-check').forEach(function(c){c.checked=false;});
+  document.getElementById('sel-bar').classList.remove('visible');
+}
+
+/* ===================== DIARIO ===================== */
+function addDiarioWeek(){
+  var fasi=['F1','F1','F1','Scarico','F2','F2','F2','Scarico','F3','F3','F4','F4 Gara','F5','F5'];
+  var n=diarioWeeks.length+1;
+  diarioWeeks.push({n:n,fase:n<=fasi.length?fasi[n-1]:'—'});
+  renderDiario();
+}
+function renderDiario(){
+  var c=document.getElementById('diario-container');
+  if(!diarioWeeks.length){c.innerHTML='<div class="al al-b">Nessuna settimana. Clicca Aggiungi Settimana.</div>';return;}
+  var html='';
+  diarioWeeks.forEach(function(w){
+    html+='<div class="diario-week"><div class="dw-hdr" data-wn="'+w.n+'">Settimana '+w.n+' <span style="font-size:10px;color:#888;font-weight:400;">· Fase: '+w.fase+'</span><span id="dw-arr-'+w.n+'">+</span></div>';
+    html+='<div class="dw-body" id="dw-body-'+w.n+'"><div style="overflow-x:auto;"><table style="font-size:11px;">';
+    html+='<tr><th style="background:var(--grey);">Giorno</th><th style="background:var(--grey);">Tipo sessione</th><th style="background:var(--grey);">Vol.prev.</th><th style="background:var(--grey);">Vol.eff.</th><th style="background:var(--grey);">RPE prev.</th><th style="background:var(--grey);">RPE eff.</th><th style="background:var(--grey);min-width:180px;">Note</th></tr>';
+    ['Lunedi','Mercoledi','Venerdi','Altro'].forEach(function(g){html+='<tr><td style="font-weight:700;">'+g+'</td><td><input class="note-input" placeholder="Es. Velocita+Tecnica"></td><td class="tc"><input class="rpe-val" style="width:52px;" placeholder="70"></td><td class="tc"><input class="rpe-val" style="width:52px;" placeholder="65"></td><td class="tc"><input class="rpe-val" placeholder="7"></td><td class="tc"><input class="rpe-val" placeholder="8"></td><td><input class="note-input" placeholder="Come e andata..."></td></tr>';});
+    html+='</table></div><div class="field-row" style="margin-top:8px;"><span class="field-label">Note M° Colussi</span><textarea class="fi" placeholder="Osservazioni..."></textarea></div></div></div>';
+  });
+  c.innerHTML=html;
+  c.querySelectorAll('.dw-hdr').forEach(function(hdr){
+    hdr.addEventListener('click',function(){
+      var n=hdr.getAttribute('data-wn');
+      var b=document.getElementById('dw-body-'+n);var a=document.getElementById('dw-arr-'+n);
+      var open=b.classList.toggle('open');a.textContent=open?'-':'+';
+    });
+  });
+}
+for(var i=0;i<3;i++)diarioWeeks.push({n:i+1,fase:['F1','F1','F1'][i]});
+renderDiario();
+
+/* ===================== CALENDARIO ===================== */
+function addGara(){
+  var nome=document.getElementById('g-nome').value.trim();
+  var data=document.getElementById('g-data').value;
+  if(!nome||!data){alert('Inserisci nome e data.');return;}
+  gare.push({nome:nome,data:data,luogo:document.getElementById('g-luogo').value.trim(),imp:document.getElementById('g-imp').value,id:Date.now()});
+  gare.sort(function(a,b){return a.data.localeCompare(b.data);});
+  renderGare();renderCal();
+  document.getElementById('g-nome').value='';document.getElementById('g-data').value='';document.getElementById('g-luogo').value='';
+}
+function delGara(id){gare=gare.filter(function(g){return g.id!==id;});renderGare();renderCal();}
+function renderGare(){
+  var c=document.getElementById('gara-list');
+  if(!gare.length){c.innerHTML='<div class="al al-b" style="margin-top:6px;">Nessuna gara inserita.</div>';return;}
+  var html='';
+  gare.forEach(function(g){html+='<div class="gara-item"><div><div style="font-weight:700;font-size:11px;">'+g.nome+' <span style="background:var(--f3);color:white;padding:0 5px;border-radius:4px;font-size:9px;">'+g.imp+'</span></div><div style="font-size:10px;color:#666;">'+fmtD(g.data)+(g.luogo?' · '+g.luogo:'')+'</div></div><button class="gara-del" data-id="'+g.id+'">Rimuovi</button></div>';});
+  c.innerHTML=html;
+  c.querySelectorAll('.gara-del').forEach(function(btn){btn.addEventListener('click',function(){delGara(parseInt(btn.getAttribute('data-id')));});});
+}
+function renderCal(){
+  document.getElementById('cal-title').textContent=MESI[calMonth]+' '+calYear;
+  document.getElementById('cal-hdr').innerHTML=GIORNI_IT.map(function(g){return'<div class="cal-hdr-d">'+g+'</div>';}).join('');
+  var first=new Date(calYear,calMonth,1),startDow=(first.getDay()+6)%7,days=new Date(calYear,calMonth+1,0).getDate(),today=new Date();
+  var html='';
+  for(var x=0;x<startDow;x++)html+='<div></div>';
+  for(var d=1;d<=days;d++){
+    var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var g=gare.find(function(g){return g.data===ds;});
+    var isTod=today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d;
+    var mo=calMonth+1;var fc=mo<=3?FC_MAP['1']:mo<=6?FC_MAP['2']:mo<=8?FC_MAP['3']:mo<=10?FC_MAP['4']:FC_MAP['5'];
+    html+='<div class="cal-day'+(g?' has-gara':'')+(isTod?' today':'')+'"><div class="cal-day-num">'+d+'</div><div class="cal-fase-bar" style="background:'+fc+';opacity:.5;"></div>'+(g?'<div class="cal-gara-lbl">'+g.nome+'</div>':'')+'</div>';
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+}
+renderGare();renderCal();
+
+/* ===================== BENCHMARK ===================== */
+function getBadge(val,b){var ok=b.higher?val>=b.ottimo:val<=b.ottimo;var mid=b.higher?val>=b.buono:val<=b.buono;if(ok)return{cls:'badge-ok',txt:'Ottimo'};if(mid)return{cls:'badge-warn',txt:'Buono'};return{cls:'badge-bad',txt:'Da migliorare'};}
+function getPct(val,b){return b.higher?Math.min(100,Math.round((val/b.ottimo)*100)):Math.min(100,Math.round((b.ottimo/Math.max(val,0.1))*100));}
+function addBench(id){
+  var d=document.getElementById('bd-'+id).value,v=parseFloat(document.getElementById('bv-'+id).value);
+  if(!d||isNaN(v)){alert('Inserisci data e risultato.');return;}
+  if(!benchData[id])benchData[id]=[];
+  benchData[id].push({date:d,val:v});
+  benchData[id].sort(function(a,b){return a.date.localeCompare(b.date);});
+  document.getElementById('bv-'+id).value='';
+  renderBench();
+}
+function renderBench(){
+  var html='';
+  BENCH.forEach(function(b){
+    var entries=benchData[b.id]||[];var last=entries[entries.length-1];
+    var bg=last?getBadge(last.val,b):null;var pct=last?getPct(last.val,b):0;
+    html+='<div class="bench-card"><div class="bench-hdr" style="background:'+b.color+';">'+b.label+(bg?'<span class="'+bg.cls+'">'+bg.txt+'</span>':'')+'</div><div class="bench-body">';
+    html+='<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">';
+    html+='<div><div style="font-size:9px;font-weight:700;color:#888;">Benchmark ottimo</div><div style="font-size:13px;font-weight:800;color:'+b.color+';">'+(b.higher?'maggiore o uguale':'minore o uguale')+' '+b.ottimo+' '+b.unit+'</div></div>';
+    if(last)html+='<div><div style="font-size:9px;font-weight:700;color:#888;">Ultimo risultato</div><div style="font-size:13px;font-weight:800;">'+last.val+' '+b.unit+' - '+fmtD(last.date)+'</div></div>';
+    html+='<div style="flex:1;min-width:100px;"><div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%;background:'+b.color+';"></div></div></div>';
+    html+='</div><div style="display:flex;gap:7px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">';
+    html+='<input type="date" class="fi" id="bd-'+b.id+'" style="width:125px;padding:4px 7px;">';
+    html+='<input type="number" class="fi" id="bv-'+b.id+'" placeholder="Risultato ('+b.unit+')" step="0.1" style="width:140px;">';
+    html+='<button onclick="addBench(\''+b.id+'\')" style="background:'+b.color+';color:white;border:none;border-radius:4px;padding:5px 10px;cursor:pointer;font-size:10px;font-weight:700;">Aggiungi</button>';
+    html+='</div>';
+    if(entries.length){
+      html+='<table style="width:100%;font-size:10px;"><tr><th style="background:#555;width:100px;">Data</th><th style="background:#555;">Risultato</th><th style="background:#555;">Esito</th><th style="background:#555;">Variazione</th></tr>';
+      entries.forEach(function(e,i){var prev=i>0?entries[i-1].val:null;var diff=prev!==null?((b.higher?(e.val-prev):(prev-e.val)).toFixed(1)):null;var dc=diff>0?'#1A7A3A':diff<0?'#E74C3C':'#888';var bg2=getBadge(e.val,b);html+='<tr><td class="tc">'+fmtD(e.date)+'</td><td class="tc" style="font-weight:700;">'+e.val+' '+b.unit+'</td><td class="tc"><span class="'+bg2.cls+'">'+bg2.txt+'</span></td><td class="tc" style="font-weight:700;color:'+dc+';">'+(diff!==null?(diff>0?'+':'')+diff:'—')+'</td></tr>';});
+      html+='</table>';
+    }else{html+='<div style="font-size:11px;color:#999;text-align:center;padding:8px;">Nessun dato. Aggiungi il primo risultato.</div>';}
+    html+='</div></div>';
+  });
+  document.getElementById('bench-cards').innerHTML=html;
+}
+renderBench();
+
+/* ===================== EVENT LISTENERS ===================== */
+document.getElementById('edit-btn').addEventListener('click',toggleEdit);
+document.getElementById('save-btn').addEventListener('click',confirmSave);
+document.getElementById('btn-print-cur').addEventListener('click',printCurrent);
+document.getElementById('btn-print-sel').addEventListener('click',openPM);
+document.getElementById('btn-print-all').addEventListener('click',printAll);
+document.getElementById('btn-pm-print').addEventListener('click',printSelected);
+document.getElementById('btn-pm-close').addEventListener('click',closePM);
+document.getElementById('btn-sto-close').addEventListener('click',function(){document.getElementById('sto-modal').classList.remove('open');});
+document.getElementById('btn-sto-print').addEventListener('click',function(){
+  var s=storico[stoModalIdx];if(!s)return;
+  var win=window.open('','_blank');
+  var title='Programma del '+s.data+' - M° Colussi - ASD CSKS Karate Mestre';
+  var body=document.getElementById('sto-modal-body').innerHTML;
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+title+'</title>');
+  win.document.write('<style>body{font-family:Segoe UI,Arial,sans-serif;padding:24px;color:#1A1A1A;font-size:12px;}h1{font-size:16px;font-weight:800;margin-bottom:4px;}.sub{font-size:11px;color:#888;margin-bottom:20px;}.gen-day{border-left:4px solid #1A5276;padding:10px 14px;margin-bottom:12px;background:#FAFAFA;border-radius:4px;}h4{font-size:13px;font-weight:800;margin-bottom:6px;}ul{padding-left:18px;line-height:2;}.rpe-badge{background:#AED6F1;color:#1A5276;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;margin-left:6px;}.src-badge{display:inline-block;padding:0 4px;border-radius:3px;font-size:9px;font-weight:700;margin-left:2px;}</style></head><body>');
+  win.document.write('<h1>'+title+'</h1><div class="sub">Obiettivo: '+s.obj+' · '+s.nSess+' sessioni · Carico: '+s.carico+'</div>');
+  win.document.write(body+'</body></html>');
+  win.document.close();win.focus();
+  setTimeout(function(){win.print();},400);
+});
+document.getElementById('btn-genera').addEventListener('click',generaSettimana);
+document.getElementById('btn-salva-sto').addEventListener('click',salvaStorico);
+document.getElementById('btn-reset-tutto').addEventListener('click',resetTutto);
+document.getElementById('btn-reset-sto').addEventListener('click',resetStorico);
+document.getElementById('btn-aggiungi').addEventListener('click',aggiungiSelezionati);
+document.getElementById('btn-desel').addEventListener('click',deselezionaTutti);
+document.getElementById('btn-add-week').addEventListener('click',addDiarioWeek);
+document.getElementById('btn-clear-diario').addEventListener('click',function(){if(confirm('Azzerare il diario?')){diarioWeeks=[];renderDiario();}});
+document.getElementById('btn-add-gara').addEventListener('click',addGara);
+document.getElementById('btn-cal-prev').addEventListener('click',function(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCal();});
+document.getElementById('btn-cal-next').addEventListener('click',function(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCal();});
+document.querySelectorAll('.nav-btn').forEach(function(btn){btn.addEventListener('click',function(){showPage(btn.getAttribute('data-page'));});});
+document.querySelectorAll('.fase-btn').forEach(function(btn){btn.addEventListener('click',function(){var f=btn.getAttribute('data-f');if(f==='carico-tab'){showPage('carico');}else{showFase(f);}});});
+document.querySelectorAll('.blocco-btn').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.blocco-btn').forEach(function(b){b.classList.remove('sel');});btn.classList.add('sel');renderBlocco(btn.getAttribute('data-cat'));});});
+document.getElementById('blocco-fase').addEventListener('change',function(){if(selectedCat)renderBlocco(selectedCat);});
+
+/* INIT */
+document.getElementById('fase-nav').style.display='flex';
+renderStorico();
+
+})();
+</script>
+</body>
+</html>
